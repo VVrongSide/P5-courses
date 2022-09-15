@@ -1,0 +1,15 @@
+@startuml
+hide footbox
+title Create chatroom
+
+actor Client
+participant Server
+
+Client -> Server : Create:\nAccess token\nchatID
+create database Users
+Server -> Users: Check if chatroom exists
+Users -> Server: Acknowledgement
+Server -> Server: Generate\nencryption key
+Server -> Users: Associate user with chatroom
+Server -> Client: encryption key\nassociated with chatroom
+@enduml

@@ -1,0 +1,13 @@
+@startuml
+hide footbox
+title Create user failure
+
+actor Client
+participant Server
+
+Client -> Server : Username\npassword
+create database Users
+Server -> Users: Check if user exist
+Users -> Server: Acknowledgement
+Server -> Client: ERROR:\nUser already exists
+@enduml

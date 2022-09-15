@@ -1,0 +1,15 @@
+@startuml
+hide footbox
+title Create user
+
+actor Client
+participant Server
+
+Client -> Server : Username\npassword
+create database Users
+Server -> Users: Check if user exist
+Users -> Server: Acknowledgement
+Server -> Server: Generate\nAccess token
+Server -> Users: Create new user
+Server -> Client: Access token\n associated with user
+@enduml
