@@ -8,8 +8,15 @@ participant Server
 Client -> Server : Username\npassword
 create database Users
 Server -> Users: Check if user exist
-Users -> Server: Acknowledgement
-Server -> Server: Generate\nAccess token
-Server -> Users: Create new user
-Server -> Client: Access token\n associated with user
+group Authentication
+else <color #027a09>Successful</color>
+        Users -> Server: Acknowledgement
+        Server -> Server: Generate\nAccess token
+        Server -> Users: Create new user
+        Server -> Client: Access token\n associated with user
+
+else <color #990f00>Unsuccessful</color>
+        Users -> Server: User exists
+        Server -> Client: ERROR:\nUser already exists
+end
 @enduml

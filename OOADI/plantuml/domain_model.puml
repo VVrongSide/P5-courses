@@ -1,0 +1,22 @@
+@startuml
+map user1 {
+	UID => 0
+	Username => Anders
+}
+
+map chatroom {
+	CID => 0
+	Chatroom => Room1
+}
+map user2 {
+	UID => 1
+	Username => Faur
+}
+
+json UserTable {
+	"UID":[0,1],
+	"Username":["Anders","Faur"],
+	"Chatrooms":[0,0],
+	"Admin":["",0]
+}
+@enduml

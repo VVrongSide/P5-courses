@@ -1,0 +1,73 @@
+@startuml
+title Encryption chatroom
+
+class User{
+        attributes
+        ..
+        +Username
+        -Password
+        +AssociatedChatroom
+        +ChatroomEncryptionkeys
+        --
+        method
+        ..
+        +createUser():void
+        +createChatroom():void
+        +joinChatroom():void
+        +requestChatLog():void
+        +sendEncryption():void
+}
+
+class Server{
+        attributes
+        ..
+        DontKnow()
+        --
+        method
+        ..
+        +userTableLookup():Dataframe
+        +createUserTableEntry():void
+        +removeUserTableEntry():void
+
+        +chatTableLookup():Dataframe
+        +createChatTableEntry():void
+        +removeChatTableEntry():void
+
+        +generateEncryptionKey():string
+        
+        +generateChatLog():void
+        +parseChatLog():void
+}       
+
+class UserTable{
+        attributes
+        ..
+        +UserID:int
+        +Username:string
+        -Password:string
+        +AssociatedChat:ChatID
+
+}
+
+class ChatTable{
+        attributes
+        ..
+        +ChatID:string
+        +Members:int/UserID
+        +Admin:UserID
+}
+
+class ChatLog{
+        attributes
+        ..
+        -Timestamps
+        -Usernames
+        -EncryptedText
+}
+
+
+User "*" -left-o "1" Server
+UserTable "1" -down-o "1" Server
+ChatTable "1" -down-o "1" Server
+ChatLog "*" -down-o "1" Server
+@enduml
