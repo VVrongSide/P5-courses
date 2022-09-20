@@ -1,22 +1,56 @@
 @startuml
-map user1 {
-	UID => 0
-	Username => Anders
+package User-side {
+	object User
+	object Account {
+		Username
+		Password
+	}
+
+	object Chat {
+		Invite code
+		Key
+		Posts
+	}
+
+
+	object Posts {
+		Username
+		Text
+		Timestamp
+	}
+
+	object Key {
+		Encryption key
+		Decryption key
+	}	
+}
+package Server-side {
+
+	object ChatLog {
+		Posts
+	}
+
+	object AccountList {
+		Accounts
+	}
+
+	object ChatList {
+		Chats
+	}
 }
 
-map chatroom {
-	CID => 0
-	Chatroom => Room1
-}
-map user2 {
-	UID => 1
-	Username => Faur
-}
-
-json UserTable {
-	"UID":[0,1],
-	"Username":["Anders","Faur"],
-	"Chatrooms":[0,0],
-	"Admin":["",0]
-}
+User -right- Account: Generates
+Account "*" -right- "1" AccountList: Includes
+User "*" -- "*" Chat: Interacts
+Chat "*" -right- "1" ChatList: Includes
+Chat "1" -- "1" Key: Includes
+Chat "1" -- "*" Posts: Includes
+Posts "*" -right- "1" ChatLog: Includes
+Account -[hidden]right- AccountList
+AccountList -[hidden]down- ChatList
+ChatList -[hidden]down- ChatLog
+Key -[hidden]right- Posts
+Account -[hidden]down- Chat
+Posts -[hidden]down- Chat
+Chat -[hidden]up- User 
 @enduml
