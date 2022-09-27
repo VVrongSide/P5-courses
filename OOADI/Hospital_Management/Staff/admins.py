@@ -1,13 +1,19 @@
 class Admin(object):
     """
     Admin class created with the following:
-    ID              [int],
+    ID              [string],
     Password        [string],
     Access_level    [int],
     patient         [list] (ID, Age, Gender, Name, Medical, Financial)
     """
 
+
+
     def __init__(self, ID, Password, Access_level):
+        assert type(ID) is str
+        assert type(Password) is str
+        assert type(Access_level) is int
+
         self.ID = ID
         self.Password = Password
         self.Access_level = Access_level
