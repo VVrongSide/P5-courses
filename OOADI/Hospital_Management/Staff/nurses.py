@@ -12,3 +12,16 @@ class Nurse(object):
     
     def run(self):
         return
+
+    def ViewPresciption(self, patient):
+        """Prints persciptoins."""
+        # print("Dosage", patient.Medical.notes.Dosage) #Not finalized yet
+        # print("Type", patient.Medical.notes.Type)
+        # print("Creator", patient.Medical.notes.Creator)
+    
+    def ViewNotes(self, patient):
+        """Prints notes."""
+        # print("Notes: ", patient.Medical.notes.getText())
+        # print("Author: ", patient.Medical.notes.getAuthor())
+
+    def 
