@@ -1,8 +1,8 @@
-from Staff.admins.py import Admin
-from Staff.doctors.py import Doctor
-from Staff.nurses.py import Nurses
-from Patients.patients.py import Patient
-from Records.Financial_Records.financial_records.py import Financial_Record
-from Records.Medical_Records.medical_records.py import Medical_Record
+from Staff.admins import Admin
+from Staff.doctors import Doctor
+from Staff.nurses import Nurses
+from Patients.patients import Patient
+from Records.Financial_Records.financial_records import Financial_Record
+from Records.Medical_Records.medical_records import Medical_Record
 
 if __name__ == "__main__":
