@@ -1,5 +1,3 @@
 class Medical_Record(object):
-    def __init__(self, Card_Info, Balance):
-
-    def run(self):
-        return
+    def __init__(self, card_Info, balance):
+        pass
