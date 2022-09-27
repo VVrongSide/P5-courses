@@ -1,10 +1,10 @@
 from ..medical_records import Medical_Record
 
-class Prescription(Medical_Record):
+class Prescription(Medical_Record,Doctor):
     def __init__(self,medicin_name, dosage, prescriber, price):
         self.medicin_name = medicin_name
         self.dosage = dosage
-        self.prescriber = prescriber
+        self.prescriber = Doctor.getID()
         self.price = price
     
     # Getter functions for attributes
@@ -12,7 +12,7 @@ class Prescription(Medical_Record):
         return self.medicin_name
 
     def getDosage(self):
-        return self.Dosage
+        return self.dosage
     
     def getPrescriber(self):
         return self.prescriber
