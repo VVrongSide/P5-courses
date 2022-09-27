@@ -1,10 +1,6 @@
 @startuml
 package User-side {
 	object User
-	object Account {
-		Username
-		Password
-	}
 
 	object Chat {
 		Invite code
@@ -26,6 +22,11 @@ package User-side {
 }
 package Server-side {
 
+	object Account {
+		Username
+		Password
+	}
+
 	object ChatLog {
 		Posts
 	}
@@ -41,16 +42,13 @@ package Server-side {
 
 User -right- Account: Generates
 Account "*" -right- "1" AccountList: Includes
-User "*" -- "*" Chat: Interacts
+User "*" -down- "*" Chat: Interacts
 Chat "*" -right- "1" ChatList: Includes
-Chat "1" -- "1" Key: Includes
-Chat "1" -- "*" Posts: Includes
+Chat "1" -left- "1" Key: Includes
+Chat "1" -down- "*" Posts: Includes
 Posts "*" -right- "1" ChatLog: Includes
 Account -[hidden]right- AccountList
 AccountList -[hidden]down- ChatList
 ChatList -[hidden]down- ChatLog
-Key -[hidden]right- Posts
 Account -[hidden]down- Chat
-Posts -[hidden]down- Chat
-Chat -[hidden]up- User 
 @enduml
