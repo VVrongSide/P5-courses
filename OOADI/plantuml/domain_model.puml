@@ -1,54 +1,71 @@
 @startuml
-package User-side {
-	object User
+skinparam packageStyle rectangle
+skinparam linetype polyline
+package User_Interface {
 
-	object Chat {
-		Invite code
-		Key
-		Posts
+
+	package User_session #DDDDFF {
+		map Create_user {
+		}
+		map Login_or_Logout{
+		}
+		map Create_channel{
+		}
+		map Join_channel{
+		}
+		map Send_or_Read_msg{
+		}
 	}
+	object UI {
 
+		}
+	package Encryption #DDDFAF{
+		map Encrypt {
 
-	object Posts {
-		Username
-		Text
-		Timestamp
+		}
+		map Decrypt {
+
+		}
 	}
+	map UI_connection {
 
-	object Key {
-		Encryption key
-		Decryption key
 	}	
 }
-package Server-side {
 
-	object Account {
-		Username
-		Password
+package Server {
+	map Create_user_entry {
+	}
+	map Validate_Login{
+	}
+	object User_db{
+	}
+	map Create_channel_entry	{
+	}
+	map Associate_users{
+	}
+	map Store_enc_msg{
+	}
+	map Forward_Log{
+	}
+	object Channel_db{
+	}
+	object Encrypted_Log{
+	}
+	map Server_connection {
 	}
 
-	object ChatLog {
-		Posts
-	}
-
-	object AccountList {
-		Accounts
-	}
-
-	object ChatList {
-		Chats
-	}
 }
+Create_user -[hidden]down- Login_or_Logout
+Login_or_Logout -[hidden]down- Create_channel
+Create_channel -[hidden]down- Join_channel
+Join_channel -[hidden]down- Send_or_Read_msg
 
-User -right- Account: Generates
-Account "*" -right- "1" AccountList: Includes
-User "*" -down- "*" Chat: Interacts
-Chat "*" -right- "1" ChatList: Includes
-Chat "1" -left- "1" Key: Includes
-Chat "1" -down- "*" Posts: Includes
-Posts "*" -right- "1" ChatLog: Includes
-Account -[hidden]right- AccountList
-AccountList -[hidden]down- ChatList
-ChatList -[hidden]down- ChatLog
-Account -[hidden]down- Chat
+Decrypt -[hidden]down- Encrypt
+
+Create_user -[hidden]left- UI
+User_session -- UI
+
+UI -- Encryption
+Decrypt -[hidden]left- UI_connection
+Encryption -- UI_connection
 @enduml

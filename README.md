@@ -1,5 +1,5 @@
 # P5-courses
-AAU 5 semester courses
+AAU 5 semester courses:
 
 1. Signal processing
 2. Object-Oriented Analysis and Design

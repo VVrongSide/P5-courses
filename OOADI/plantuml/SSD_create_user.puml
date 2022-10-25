@@ -10,7 +10,7 @@ create database Users
 Server -> Users: Check if user exist
 group Authentication
 else <color #027a09>Successful</color>
-        Users -> Server: Acknowledgement
+        Users -> Server: User does not exist
         Server -> Server: Generate\nAccess token
         Server -> Users: Create new user
         Server -> Client: Access token\n associated with user

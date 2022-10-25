@@ -1,15 +1,26 @@
 @startuml
 hide footbox
-title Create chatroom
+title Create channel
 
-actor Client
+actor User
+participant UI
+participant Session_Manager
 participant Server
 
-Client -> Server : Create:\nAccess token\nchatID
-create database Users
-Server -> Users: Check if chatroom exists
-Users -> Server: Acknowledgement
-Server -> Server: Generate\nencryption key
-Server -> Users: Associate user with chatroom
-Server -> Client: encryption key\nassociated with chatroom
+User -> UI: Input:\n ChannelName
+UI -> Session_Manager:Forward ChannelName
+Session_Manager-> Server:Forward ChannelName
+create database Channel_db
+Server -> Channel_db: Create Channel &\nAssociate User
+group Authentication
+else <color #027a09>Successful</color>
+        Channel_db -> Server: ChannelID for created channel
+        Server -> Session_Manager: Forward:\n ChannelID
+        Session_Manager -> UI: ChannelID
+
+else <color #990f00>Unsuccessful</color>
+        Channel_db -> Server: Channel exists
+        Server -> Session_Manager: Forward:\nChannel already exists
+        Session_Manager -> UI: ERROR:\nChannel already exists
+end
 @enduml

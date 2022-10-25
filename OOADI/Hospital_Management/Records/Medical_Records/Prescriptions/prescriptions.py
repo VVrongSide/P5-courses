@@ -7,6 +7,12 @@ class Prescription(Medical_Record,Doctor):
         self.prescriber = Doctor.getID()
         self.price = price
     
+<<<<<<< HEAD
+=======
+    def __repr__(self):
+        return "Medicin: {}\nDosage: {}\nPrescriber: {}\nPrice: {}\n"
+
+>>>>>>> main
     # Getter functions for attributes
     def getMedicinName(self):
         return self.medicin_name
