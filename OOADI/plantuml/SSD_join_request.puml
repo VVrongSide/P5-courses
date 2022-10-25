@@ -5,14 +5,15 @@ title Join request
 actor Client1
 participant Server
 
-Client1 -> Server : JOIN:\nAccess token\nChatID
+Client1 -> Server : Access token\nChatID
 create database Users
 Server -> Users: Confirms Access token\nassociated with user
 Server -> Users: Request Members linked\nto chatID
 Users -> Server: Reply with members
+Server -> Client1: Send P2P request\nTo client2
 create actor Client2
-Server -> Client2: Request encryption key\nfor chatID
-Client2 -> Server: Reply ChatID encryption key
+Client1 -> Client2: Request encryption key\nfor chatID
+Client2 -> Client1: Reply ChatID encryption key
 Server -> Client1: Send encryption key
 Server -> Users: Associate chatID\nwith Client1
 @enduml

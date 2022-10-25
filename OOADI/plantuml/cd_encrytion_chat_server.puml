@@ -1,63 +1,5 @@
 @startuml
-title Encryption chatroom
-class User_Interface{
-        --
-        Methods
-        ..
-        +showUI():void
-        +login():void
-        +generateSession():void
-}
-
-class UI_Session_manager{
-        Attributes
-        ..
-        -EncryptionKeys:List
-        +ChannelManagers:List
-        --
-        Method
-        ..
-        +createChannelManager():void
-        +createP2Pmanager():void
-        +connectServer():void
-        +forwardMessage():void
-        +logout():void
-        -encryptMessage():void
-        -decryptLog():void
-
-}       
-User_Interface "1\n" <|-right- "*\n" UI_Session_manager
-
-class UI_Peer_to_peer_manager{
-        Attributes
-        ..
-        -connectionIP:string
-        --
-        Methods
-        ..
-        establishConnection():void
-}
-
-UI_Session_manager "1" <|-up- "*" UI_Peer_to_peer_manager
-interface Peer2Peer{
-
-}
-Peer2Peer "1" -left- "1" UI_Peer_to_peer_manager
-Peer2Peer -[hidden]down- Socket 
-class UI_Channel_manager{
-        Attributes
-        ..
-        ChannelList:list
-        --
-        Method
-        ..
-        sendMessage():void
-        updateLog():void
-}
-
-UI_Session_manager "\n1 " <|-down- "* " UI_Channel_manager
-
-
+title Encryption chatroom Server
 interface Socket{
 
 }
@@ -73,7 +15,7 @@ class Server_Session_manager{
         +storeMessage():void
         +forwardMessage():void
 }
-UI_Session_manager "1" -right- "1" Socket
+
 Server_Session_manager "1" -left- "1" Socket
 
 class Server{
@@ -104,15 +46,15 @@ Server "1\n" <|-left- "*\n" Server_Session_manager
 class User_db_manager{
         Method
         ..
-        createUser():void
-        validateUser():void
-        lookupUser():void     
+        createAccount():void
+        validateAccount():void
+        lookupAccount():void     
 }
 
 User_db_manager "1\n" -left-|> "1\n" Server
 
-package User_db <<database>>{
-        map User_db {
+package Account_db <<database>>{
+        map Account_db {
                 usernames => string
                 password => enc_string
                 associatedChannel => list
@@ -134,16 +76,16 @@ package Channel_db <<database>>{
         map Channel_db {
                 channel_id => string
                 channel_members => usernames
-                Logs => 
+                Channel_Logs => 
         }
-        object Logs{
+        object Channel_Log{
         Attributes
         ..
         encrypted_Timestamp
         encrypted_User
         encrypted_Message
         }
-        Channel_db::Logs -right-> Logs
+        Channel_db::Channel_Logs -right-> Channel_Log
 }
 
 Channel_db "1" -left-* "1" Channel_db_manager

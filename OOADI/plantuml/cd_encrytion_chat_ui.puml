@@ -1,0 +1,67 @@
+@startuml
+title Encryption chatroom UI
+class User_Interface{
+        --
+        Methods
+        ..
+        +showUI():void
+        +login():void
+        +generateSession():void
+}
+
+class UI_Session_manager{
+        Attributes
+        ..
+        -EncryptionKeys:List
+        +ChannelManagers:List
+        --
+        Method
+        ..
+        +createChannelManager():void
+        +createP2Pmanager():void
+        +connectServer():void
+        +forwardMessage():void
+        +logout():void
+        -encryptMessage():void
+        -decryptLog():void
+
+}       
+User_Interface "1\n" <|-right- "*\n" UI_Session_manager
+
+class UI_Peer_to_peer_manager{
+        Attributes
+        ..
+        -connectionIP:string
+        -connectionPort:int
+        --
+        Methods
+        ..
+        establishConnection():void
+}
+
+UI_Session_manager "1 \n " <|-up- " * " UI_Peer_to_peer_manager
+interface Peer2Peer{
+
+}
+Peer2Peer "1" -left- "1" UI_Peer_to_peer_manager
+Peer2Peer -[hidden]down- Socket 
+class UI_Channel_manager{
+        Attributes
+        ..
+        Channel_Log:
+        --
+        Method
+        ..
+        sendMessage():void
+        updateLog():void
+}
+
+UI_Session_manager "\n1 " <|-down- " * " UI_Channel_manager
+
+
+interface Socket{
+
+}
+
+UI_Session_manager "1" -right- "1" Socket
+@enduml
