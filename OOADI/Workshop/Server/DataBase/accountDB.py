@@ -1,5 +1,3 @@
-import pickle
-
 class accountDB:
 	def __init__(self):
 		self.accDB = {
