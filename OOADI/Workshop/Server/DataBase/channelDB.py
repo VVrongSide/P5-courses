@@ -43,30 +43,41 @@ class Channel_DB(object):
 				self.dictionary['Channel_members'][index].append(Account)
 				print(f'Asoociated |{Account}| to |{Channel_name}| members')
 	
-	def lookup(self, key=None, value=None, row=None):
+	def lookup(self, key=None, channel=None, Bool=False):
 		"""
-		If argument |row=int| is stated, it returns the row of the channel database
+		If argument |channel=int| is stated, it returns the channel of the channel database
 		if |key=str| is defined it returns the column for the str
 		if |key=str| and |value=int| is defines, it returns a specific entry in the database 
 		"""
-		if row is not None:
-			lookup = []
-			for column in self.columns:
-				if self.indexExists(self.dictionary[column],row):
-					lookup.append(self.dictionary[column][row])
-				else:
-					if (len(self.dictionary[column])-1) < 0:
-						print(f'There are currently no rows in the database')
-						return
-					else:
-						print(f'Row: |{row}| does not exist, largest index is {len(self.dictionary[column])-1}')
-						return
-			return lookup	
-		elif (value and key) is not None:
-			if self.indexExists(self.dictionary[key],value):
-				return self.dictionary[key][value]
+		if (channel and key) is not None:
+			if channel not in self.dictionary['Channel_name']:
+				print(f'Channel: |{channel}| does not exist')
 			else:
-				print(f'Value: |{value}| deos not exist')
+				index = self.dictionary['Channel_name'].index(channel)
+				if self.indexExists(self.dictionary[key],index):
+					if Bool:
+						return self.dictionary[key][index]
+					else:
+						return self.dictionary[key][-1:][0]
+				else:
+					print(f'Channel: |{channel}| does not exist')
+		elif channel is not None:
+			lookup = []
+			if channel not in self.dictionary['Channel_name']:
+				print(f'Channel: |{channel}| does not exist')
+			else:
+				index = self.dictionary['Channel_name'].index(channel)
+				for column in self.columns:
+					if self.indexExists(self.dictionary[column],index):
+						lookup.append(self.dictionary[column][index])
+					else:
+						if (len(self.dictionary[column])-1) < 0:
+							print(f'There are currently no channels in the database')
+							return
+						else:
+							print(f'channel: |{channel}| does not exist, largest index is {len(self.dictionary[column])-1}')
+							return
+			return lookup	
 		elif key is not None:
 			return self.dictionary[key]
 		else:
