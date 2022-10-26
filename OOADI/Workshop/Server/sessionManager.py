@@ -1,10 +1,12 @@
 from DataBase.accountDB import accountDB
 import pickle
 import socket
+import os.path
 
 class sessionManager:
 	def __init__(self):
-		self.accountDB_fn = Path("./DataBase/accountDB.txt")
+		self.accountDB_fn = os.path.join("DataBase","Channel_DB_manager.txt") 
+		self.ChannelDB_fn = os.path.join("DataBase","Channel_DB_manager.txt")
 		if not self.filename.exists():
 			self.accountDataB = accountDB()
 			with open(self.accountDB_fn, "wb") as pickle_file:
@@ -35,6 +37,7 @@ class sessionManager:
 			with open(self.accountDB_fn, "wb") as pickle_file:
 				pickle.dump(self.accountDataB, pickle_file)
 			return False
+
 	def recieveData(self, datarecv):
 		msgType = list(datarecv.split(" "))
 		match msgType[0]:
@@ -45,11 +48,8 @@ class sessionManager:
 
 
 
-			
-
-
 		
-if __name__==__main__:
+if __name__=="__main__":
 	HOST = "127.0.0.1"
 	PORT = 80
 	with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -63,4 +63,4 @@ if __name__==__main__:
 				if not data:
 					break
 				datarecv += data.decode('utf8')
-			sessManager.recieveData(datarecv)
+			
