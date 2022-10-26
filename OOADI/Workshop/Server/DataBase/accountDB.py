@@ -6,7 +6,7 @@ class accountDB:
 			"Associated Channels" : []
 			}
 	
-	
+
 	def lookUpAccount(self, Username):
 		if Username in self.accDB["Username"]:
 			return True
@@ -16,11 +16,13 @@ class accountDB:
 
 	def createUser(self, Username, Password):
 		if self.lookUpAccount(Username):
+			print(f'{Username} already exist')
 			return False
 		else:
 			self.accDB["Username"].append(Username)
 			self.accDB["Password"].append(Password)
 			self.accDB["Associated Channels"].append([])
+			print(f'User {Username} was succesfully created')
 			return True
 	
 
@@ -28,8 +30,10 @@ class accountDB:
 		if self.lookUpAccount(Username):
 			self.index = self.accDB["Username"].index(Username)
 			if self.accDB["Password"][self.index] == Password:
+				print(f'Succesful login to user: {Username}')
 				return True
 
+		print(f'Failed login attempt for user {Username}')
 		return False
 		
 
@@ -39,5 +43,6 @@ class accountDB:
 			print("Channel already exists in account database")
 			return
 		self.accDB["Associated Channels"][self.index].append(ChannelID)
+		print(f'{Username} succesfully associated with channel: {ChannelID}')
 		return
 	
