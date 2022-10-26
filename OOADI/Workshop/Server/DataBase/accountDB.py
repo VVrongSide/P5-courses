@@ -7,11 +7,10 @@ class accountDB:
 			}
 	
 	def lookUpAccount(self, Username):
-		for c in self.accDB["Username"]:
-			if c == Username:
-				return True
-		
-		return False
+		if Username in self.accDB["Username"]:
+			return True
+		else:
+			return False
 	
 	def createUser(self, Username, Password):
 		if self.lookUpAccount(Username):
@@ -27,20 +26,15 @@ class accountDB:
 			self.index = self.accDB["Username"].index(Username)
 			if self.accDB["Password"][self.index] == Password:
 				return True
-			else:
-				return False
-			
-		else:
-			return False
+
+		
+		return False
 		
 	def addChannel(self, Username, ChannelID):
 		self.index = self.accDB["Username"].index(Username)
-		for c in self.accDB["Associated Channels"][self.index]:
-			if c == ChannelID:
-				print("Channel already exists in account database")
-				return False
+		if ChannelID in self.accDB["Associated Channels"][self.index]:
+			print("Channel already exists in account database")
+			return
 		self.accDB["Associated Channels"][self.index].append(ChannelID)
-		return True
+		return
 	
-	def printDB(self):
-		print(self.accDB)

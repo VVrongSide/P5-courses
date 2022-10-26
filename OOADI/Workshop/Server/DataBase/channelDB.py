@@ -28,8 +28,8 @@ class Channel_DB(object):
 			print(f'{Channel_name} already exists') 		# Checking if the Channel_name exists in the dictionary
 		else:
 			self.dictionary['Channel_name'].append(Channel_name)
-			self.dictionary['Channel_members'].append(Account)
-			self.dictionary['Channel_log'].append(None)
+			self.dictionary['Channel_members'].append([Account])
+			self.dictionary['Channel_log'].append([])
 			print(f'Added the Channel_name: |{Channel_name}| with Channel_members: |{Account}|')
 
 	def associateUser(self, Channel_name, Account):
@@ -62,13 +62,13 @@ class Channel_DB(object):
 						print(f'Row: |{row}| does not exist, largest index is {len(self.dictionary[column])-1}')
 						return
 			return lookup	
-		elif key is not None:
-			return self.dictionary[key]
-		elif value is not None:
+		elif (value and key) is not None:
 			if self.indexExists(self.dictionary[key],value):
 				return self.dictionary[key][value]
 			else:
 				print(f'Value: |{value}| deos not exist')
+		elif key is not None:
+			return self.dictionary[key]
 		else:
 			return self.dictionary
 
