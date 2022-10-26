@@ -12,11 +12,11 @@ class Channel_DB(object):
 		return f''
 
 	def indexExists(self, list,index):
-	    try:
-	        list[index]
-	        return True
-	    except IndexError:
-	        return False
+		try:
+			list[index]
+			return True
+		except IndexError:
+			return False
 
 	def constructDict(self):
 		tempDict = {}
