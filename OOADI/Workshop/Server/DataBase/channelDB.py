@@ -1,5 +1,3 @@
-import pickle
-
 class Channel_DB(object):
 	
 	def __init__(self):
@@ -76,20 +74,4 @@ class Channel_DB(object):
 
 	def run(self):	
 		return
-
-if __name__=="__main__":
-
-	# Format for a channel log
-	"""
-	channel_log = {
-				"time": [],
-				"user": [],
-				"message": []
-			}
-	"""
-	Channel_DB_manager = Channel_DB()
-	filename = 'Channel_DB_manager.txt'
-	with open(filename, "wb") as f:
-		pickle.dump(Channel_DB_manager, f)
-
 
