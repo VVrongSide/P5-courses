@@ -32,7 +32,7 @@ class Channel_DB(object):
 		else:
 			self.dictionary['Channel_name'].append(Channel_name)
 			self.dictionary['Channel_members'].append([Account])
-			self.dictionary['Channel_log'].append(None)
+			self.dictionary['Channel_log'].append([])
 			print(f'Added the Channel_name: |{Channel_name}| with Channel_members: |{Account}|')
 
 	def associateUser(self, Channel_name, Account):
@@ -41,7 +41,7 @@ class Channel_DB(object):
 		else:
 			index = self.dictionary['Channel_name'].index(Channel_name)
 			if Account in self.dictionary['Channel_members'][index]:	# Checking if the Channel_name exists in the dictionary
-				print(f'{Account} already exists in that channel\n') 		
+				print(f'{Account} already exists in that channel') 		
 			else:
 				self.dictionary['Channel_members'][index].append(Account)
 				print(f'Asoociated |{Account}| to |{Channel_name}| members')
@@ -59,21 +59,19 @@ class Channel_DB(object):
 					lookup.append(self.dictionary[column][row])
 				else:
 					if (len(self.dictionary[column])-1) < 0:
-						#raise Exception(f'There are currently no rows in the database')
 						print(f'There are currently no rows in the database')
 						return
 					else:
-						#raise Exception(f'Row: |{row}| does not exist, largest index is {len(self.dictionary[column])-1}')
 						print(f'Row: |{row}| does not exist, largest index is {len(self.dictionary[column])-1}')
 						return
-			return lookup
-		elif key is not None:
-			return self.dictionary[key]
-		elif value is not None:
+			return lookup	
+		elif (value and key) is not None:
 			if self.indexExists(self.dictionary[key],value):
 				return self.dictionary[key][value]
 			else:
 				print(f'Value: |{value}| deos not exist')
+		elif key is not None:
+			return self.dictionary[key]
 		else:
 			return self.dictionary
 
@@ -93,7 +91,7 @@ class TestFloatOperations(unittest.TestCase):
 		## Key lookup
 		self.assertEqual(self.Channel_DB_manager.lookup(key=key_lookup),[])
 		## Value lookup
-		self.assertEqual(self.Channel_DB_manager.lookup(key=key_lookup,value=value_lookup),[])
+		self.assertEqual(self.Channel_DB_manager.lookup(key=key_lookup,value=value_lookup),None)
 		## Row lookup
 		self.assertEqual(self.Channel_DB_manager.lookup(row=row_lookup),None)
 
@@ -104,7 +102,7 @@ class TestFloatOperations(unittest.TestCase):
 
 		self.Channel_DB_manager.createChannel(new_channel,channel_creater)
 
-		self.assertEqual(self.Channel_DB_manager.lookup(row=0), [new_channel, [channel_creater], None])
+		self.assertEqual(self.Channel_DB_manager.lookup(row=0), [new_channel, [channel_creater], []])
 
 	def test_associateUser(self):
 		print("")
@@ -127,8 +125,9 @@ class TestFloatOperations(unittest.TestCase):
 			self.Channel_DB_manager.createChannel(new_channels[idx],channel_creaters[idx])
 			self.Channel_DB_manager.associateUser(new_channels[idx],new_users[idx])
 
+		key_lookup = self.Channel_DB_manager.columns[0]
 		for idx in range(len(new_channels)):
-			self.assertEqual(self.Channel_DB_manager.lookup(row=idx), [new_channels[idx], [channel_creaters[idx], new_users[idx]], None])
-
+			self.assertEqual(self.Channel_DB_manager.lookup(row=idx), [new_channels[idx], [channel_creaters[idx], new_users[idx]], []])
+			self.assertEqual(self.Channel_DB_manager.lookup(key=key_lookup, value=idx), new_channels[idx])
 if __name__=="__main__":
 	unittest.main()
