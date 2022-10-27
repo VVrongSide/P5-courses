@@ -136,16 +136,26 @@ class TestFloatOperations(unittest.TestCase):
 		new_channels = ['Channel_0','Channel_1','Channel_2','Channel_3']
 		channel_creaters = ['Account_0','Account_1','Account_2','Account_3']
 		new_users = ['Account_1','Account_0','Account_3','Account_2']
-		new_log_entrys = ['msg_0','msg_1','msg_2','msg_3']
+		new_log_entrys = [['timestamp_0','user_0','msg_0'],['timestamp_1','user_1','msg_1'],['timestamp_2','user_2','msg_2'],['timestamp_3','user_3','msg_3']]
 		for idx in range(len(new_channels)):
 			self.Channel_DB_manager.createChannel(new_channels[idx],channel_creaters[idx])
 			self.Channel_DB_manager.associateUser(new_channels[idx],new_users[idx])
 			self.Channel_DB_manager.logEntry(new_channels[idx], new_log_entrys[idx])
-		
+			if (idx > 0):
+				self.Channel_DB_manager.logEntry(new_channels[0], new_log_entrys[idx])
+
 		key_lookup = self.Channel_DB_manager.columns[2]
+		
 		for idx in range(len(new_channels)):
-			self.assertEqual(self.Channel_DB_manager.lookup(channel=new_channels[idx]), [new_channels[idx], [channel_creaters[idx], new_users[idx]], [new_log_entrys[idx]]])
-			self.assertEqual(self.Channel_DB_manager.lookup(key=key_lookup, channel=new_channels[idx]), [new_log_entrys[idx]])
-			self.assertEqual(self.Channel_DB_manager.lookup(key=key_lookup, channel=new_channels[idx], last_entry=True), new_log_entrys[idx])
+			
+			if idx == 0:
+				self.assertEqual(self.Channel_DB_manager.lookup(channel=new_channels[idx]), [new_channels[idx], [channel_creaters[idx], new_users[idx]], [new_log_entrys[x] for x in range(len(new_log_entrys))]])
+				self.assertEqual(self.Channel_DB_manager.lookup(key=key_lookup, channel=new_channels[idx],last_entry=False), [new_log_entrys[x] for x in range(len(new_log_entrys))])
+				self.assertEqual(self.Channel_DB_manager.lookup(key=key_lookup, channel=new_channels[idx]), new_log_entrys[3])
+			else:
+				self.assertEqual(self.Channel_DB_manager.lookup(channel=new_channels[idx]), [new_channels[idx], [channel_creaters[idx], new_users[idx]], [new_log_entrys[idx]]])
+				self.assertEqual(self.Channel_DB_manager.lookup(key=key_lookup, channel=new_channels[idx]), new_log_entrys[idx])
+
+			print(f'Lookup return: {self.Channel_DB_manager.lookup(key=key_lookup, channel=new_channels[idx], last_entry=False)}')
 if __name__=="__main__":
 	unittest.main()

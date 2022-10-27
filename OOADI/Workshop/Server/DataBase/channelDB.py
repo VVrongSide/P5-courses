@@ -1,3 +1,5 @@
+import pickle
+
 class Channel_DB(object):
 	
 	def __init__(self):
@@ -91,3 +93,22 @@ class Channel_DB(object):
 	def run(self):	
 		return
 
+if __name__=="__main__":
+	## To create Channel_DB_manager.txt pickle file
+	#Channel_DB_manager = Channel_DB()
+	
+	## To populate the database
+	#new_channels = ['Channel_0','Channel_1','Channel_2','Channel_3']
+	#channel_creaters = ['Account_0','Account_1','Account_2','Account_3']
+	#new_users = ['Account_1','Account_0','Account_3','Account_2']
+	#new_log_entrys = [['timestamp_0','user_0','msg_0'],['timestamp_1','user_1','msg_1'],['timestamp_2','user_2','msg_2'],['timestamp_3','user_3','msg_3']]
+	#for idx in range(len(new_channels)):
+	#	Channel_DB_manager.createChannel(new_channels[idx],channel_creaters[idx])
+	#	Channel_DB_manager.associateUser(new_channels[idx],new_users[idx])
+	#	Channel_DB_manager.logEntry(new_channels[idx], new_log_entrys[idx])
+	#	if (idx > 0):
+	#		Channel_DB_manager.logEntry(new_channels[0], new_log_entrys[idx])
+	
+	## To store the pickle database manager
+	#with open('Channel_DB_manager.txt', "wb") as pickle_file:
+	#		pickle.dump(Channel_DB_manager, pickle_file)
