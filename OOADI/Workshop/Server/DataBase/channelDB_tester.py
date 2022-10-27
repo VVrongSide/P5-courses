@@ -53,7 +53,7 @@ class Channel_DB(object):
 			index = self.dictionary['Channel_name'].index(Channel_name)
 			self.dictionary['Channel_log'][index].append(msg)
 
-	def lookup(self, key=None, channel=None, last_entry=False):
+	def lookup(self, key=None, channel=None, last_entry=True):
 		"""
 		If argument |channel=int| is stated, it returns the channel of the channel database
 		if |key=str| is defined it returns the column for the str
