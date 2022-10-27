@@ -93,7 +93,7 @@ class Channel_DB(object):
 	def run(self):	
 		return
 
-if __name__=="__main__":
+#if __name__=="__main__":
 	## To create Channel_DB_manager.txt pickle file
 	#Channel_DB_manager = Channel_DB()
 	

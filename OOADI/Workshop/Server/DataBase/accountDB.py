@@ -1,4 +1,4 @@
-class accountDB:
+class account_DB(object):
 	def __init__(self):
 		self.accDB = {
 			"Username" : [],

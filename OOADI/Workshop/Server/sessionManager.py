@@ -1,4 +1,4 @@
-from DataBase.accountDB import accountDB
+from DataBase.accountDB import account_DB
 from DataBase.channelDB import Channel_DB
 import pickle
 import socket
@@ -9,13 +9,17 @@ class sessionManager:
 		self.accountDB_fn = os.path.join("DataBase","account_DB_manager.txt") 
 		self.ChannelDB_fn = os.path.join("DataBase","Channel_DB_manager.txt")
 		if not os.path.exists(self.accountDB_fn):
-			accountDB = accountDB()
+			accountDB = account_DB()
 			with open(self.accountDB_fn, "wb") as pickle_file:
 				pickle.dump(accountDB, pickle_file)
 		if not os.path.exists(self.ChannelDB_fn):
 			ChannelDB = Channel_DB()
 			with open(self.ChannelDB_fn, "wb") as pickle_file:
 				pickle.dump(ChannelDB, pickle_file)
+		with open(self.ChannelDB_fn, "rb") as pickle_file:
+			ChannelDB = pickle.load(pickle_file)
+			print(ChannelDB.dictionary)
+
 				
 
 #######  ACCOUNT DB HANDLING #########
@@ -133,10 +137,10 @@ if __name__=="__main__":
 		s.bind((HOST, PORT))
 		s.listen()
 		while True:
+			print("Here")
 			conn, addr = s.accept()
 			with conn:
-				data = conn.recv(1024)
-				datarecv = data
+				datarecv = conn.recv(1024)
 				while True:
 					data = conn.recv(1024)
 					if not data:
@@ -144,7 +148,10 @@ if __name__=="__main__":
 					datarecv += data
 				ret = session.recieveData(pickle.loads(datarecv))
 				if type(ret) is bool:
-					conn.sendall(ret)
+					conn.sendall(pickle.dumps(ret))
+				elif type(ret) is list:
+					conn.sendall(pickle.dumps(ret))
+				print(ret)
 				
 				
 
