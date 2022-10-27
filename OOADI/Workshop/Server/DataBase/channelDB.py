@@ -62,7 +62,7 @@ class Channel_DB(object):
 			else:
 				index = self.dictionary['Channel_name'].index(channel)
 				if last_entry:
-					return self.dictionary[key][indx][-1:][0]
+					return self.dictionary[key][index][-1:][0]
 				else:
 					return self.dictionary[key][index]
 
