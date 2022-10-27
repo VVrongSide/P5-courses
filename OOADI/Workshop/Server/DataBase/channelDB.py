@@ -26,29 +26,35 @@ class Channel_DB(object):
 		
 		if Channel_name in self.dictionary['Channel_name']:
 			print(f'{Channel_name} already exists') 		# Checking if the Channel_name exists in the dictionary
+			return False
 		else:
 			self.dictionary['Channel_name'].append(Channel_name)
 			self.dictionary['Channel_members'].append([Account])
 			self.dictionary['Channel_log'].append([])
 			print(f'Added the Channel_name: |{Channel_name}| with Channel_members: |{Account}|')
+			return True
 
 	def associateUser(self, Channel_name, Account):
 		if Channel_name not in self.dictionary['Channel_name']:
 			print(f'Channel: |{Channel_name}| does not exist')
+			return False
 		else:
 			index = self.dictionary['Channel_name'].index(Channel_name)
 			if Account in self.dictionary['Channel_members'][index]:	# Checking if the Channel_name exists in the dictionary
-				print(f'{Account} already exists in that channel') 		
+				print(f'{Account} already exists in that channel')
+				return False 		
 			else:
 				self.dictionary['Channel_members'][index].append(Account)
 				print(f'Asoociated |{Account}| to |{Channel_name}| members')
+				return True
 	
 	def logEntry(self, Channel_name, msg):
 		if Channel_name not in self.dictionary['Channel_name']:
-				print(f'Channel: |{Channel_name}| does not exist')
+			print(f'Channel: |{Channel_name}| does not exist')
 		else:
 			index = self.dictionary['Channel_name'].index(Channel_name)
 			self.dictionary['Channel_log'][index].append(msg)
+			print(f'Log entry into Channel: |{Channel_name}| succesful')
 
 	def lookup(self, key=None, channel=None, last_entry=True):
 		"""
