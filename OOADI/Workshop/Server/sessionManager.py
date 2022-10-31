@@ -27,13 +27,7 @@ class sessionManager(threading.Thread):
 		with open(self.ChannelDB_fn, "rb") as pickle_file:
 			ChannelDB = pickle.load(pickle_file)
 			#print(ChannelDB.dictionary)
-	def run(self):
-		while True:
-		    server.listen(1)
-		    clientsock, clientAddress = server.accept()
-		    CONN_COUNTER=CONN_COUNTER+1
-		    newthread = ClientThread(clientAddress, clientsock, CONN_COUNTER, SESSION_LIST, ID_LIST, PORT_IDS, PORT_HANDLES)
-		    newthread.start()
+
 				
 
 #######  ACCOUNT DB HANDLING #########
@@ -216,11 +210,11 @@ if __name__=="__main__":
 	print("SessionManager started.")
 	print("Waiting for session connections...")
 	while True:
-	    server.listen(1)
-	    sessionSocket, sessionAddress = server.accept()
-	    CONN_COUNTER=CONN_COUNTER+1
-	    newthread = sessionManager(sessionAddress, sessionSocket, CONN_COUNTER, SESSION_LIST, ID_LIST, PORT_IDS, PORT_HANDLES)
-	    newthread.start()
+		server.listen(1)
+		sessionSocket, sessionAddress = server.accept()
+		CONN_COUNTER=CONN_COUNTER+1
+		newthread = sessionManager(sessionAddress, sessionSocket, CONN_COUNTER, SESSION_LIST, ID_LIST, PORT_IDS, PORT_HANDLES)
+		newthread.start()
 	"""
 	session = sessionManager()
 	
