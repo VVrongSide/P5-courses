@@ -51,7 +51,7 @@ class ReceiveData(threading.Thread):
 				print(recv_data)
 
 if __name__=="__main__":
-	SESSION = input('Insert Username')
+	SESSION = input('Insert Username: ')
 	print("Welcome {}. Initializing connection to the server.".format(SESSION))
 	s = socket(AF_INET,SOCK_STREAM)
 	s.connect((HOST, PORT))
