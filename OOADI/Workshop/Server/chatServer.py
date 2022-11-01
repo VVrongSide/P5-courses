@@ -7,6 +7,7 @@ import threading
 
 class chatServer(threading.Thread):
 	def __init__(self):
+		############ SETUP SOCKET PARAMETERS #############
 		threading.Thread.__init__(self)
 		self.HOST = "127.0.0.1"
 		self.PORT = 65432
@@ -21,6 +22,8 @@ class chatServer(threading.Thread):
 		self.serverSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		self.serverSocket.bind((self.HOST, self.PORT))
 
+
+		######### Initialize database files #################
 		self.accountDB_fn = os.path.join("DataBase","account_DB_manager.txt") 
 		self.ChannelDB_fn = os.path.join("DataBase","Channel_DB_manager.txt")
 		if not os.path.exists(self.accountDB_fn):
@@ -34,6 +37,10 @@ class chatServer(threading.Thread):
 		with open(self.ChannelDB_fn, "rb") as pickle_file:
 			ChannelDB = pickle.load(pickle_file)
 			#print(ChannelDB.dictionary)
+
+
+		############ Start run method ############
+		self.run()
 
 				
 
@@ -94,7 +101,7 @@ class chatServer(threading.Thread):
 		return ret
 
 
-	def getLogs(self, Channel_name, lastEntry=True):
+	def getLog(self, Channel_name, lastEntry=True):
 		
 		with open(self.ChannelDB_fn, "rb") as pickle_file:
 			ChannelDB = pickle.load(pickle_file)
@@ -135,9 +142,11 @@ class chatServer(threading.Thread):
 			case "createChannel":
 				return self.createChannel(datarecv[1], datarecv[2])
 			case "lastChat":
-				return self.getLogs(datarecv[1])
-			case "chatLogs":
-				return self.getLogs(datarecv[1], lastEntry=False)
+				return self.getLog(datarecv[1])
+			case "chatLog":
+				return self.getLog(datarecv[1], lastEntry=False)
+			case "logEntry":
+				return self.logEntry(datarecv[1], datarecv[2])
 
 
 	def sessionManager(self, sessionAddress, sessionSocket):
@@ -151,7 +160,7 @@ class chatServer(threading.Thread):
 			self.SESSION_LIST.append(username)
 
 			################ TESTING PURPOSE ###################
-			print('*** Connection {} accepted. Status: active/maximum sessions: {}/{}'.format(self.CONN_COUNTER,len(self.sessions),self.MAX_SESSIONS))
+			print('*** Connection {} accepted. Status: active/maximum sessions: {}/{}'.format(self.CONN_COUNTER,len(self.SESSION_LIST),self.MAX_SESSIONS))
 			print('    from {}'.format(sessionAddress))
 			print('    handled in {}'.format(threading.get_ident()))
 			print('    session: {}'.format(data_list[1]))
@@ -204,7 +213,8 @@ class chatServer(threading.Thread):
 			print('    handled in {}'.format(threading.get_ident()))
 			print('    session: {}'.format(data_list[1]))
 
-########## RUN FUNCTION ###########
+	
+	########## RUN FUNCTION ###########
 	def run(self):
 		while True:
 			# Listen for connections on the socket
@@ -218,83 +228,7 @@ class chatServer(threading.Thread):
 			newthread.start()
 
 
-	"""def run(self):
-		# Receive data on the session socket
-		r = self.ssocket.recv(BUFFER_SIZE)
-		# Load data using pickle
-		data_list = pickle.loads(r)
-		# Check if number of sessions is larger than max allowed sessions
-		if len(self.sessions)<MAX_SESSIONS:
-			# Set id of session to counter
-			indid=self.counter
-			self.sessionIDs.append(indid)
-			# Set session username as second entry in the unpickled object
-			uusername=data_list[1]
-			# Append username to session
-			self.sessions.append(uusername)
-			print('*** Connection {} accepted. Status: active/maximum sessions: {}/{}'.format(self.counter,len(self.sessions),MAX_SESSIONS))
-			print('    from {}'.format(sessionAddress))
-			print('    handled in {}'.format(threading.get_ident()))
-			print('    session: {}'.format(data_list[1]))
-			# Set number of users online
-			onlineusers=len(self.sessionIDs)
-			# Create new port based on the session id/counter
-			NEW_PORT=PORT+self.counter
-			print(NEW_PORT)
-			# Append the new port to portids
-			self.portids.append(NEW_PORT)
-			# Create dedicated socket to session on the new port
-			dedicatedserver = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-			dedicatedserver.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-			dedicatedserver.bind((HOST, NEW_PORT))
-			# String with accepted connection
-			connect_ok_list=["OK",indid,onlineusers,NEW_PORT]
-			data_string = pickle.dumps(connect_ok_list)
-			self.ssocket.send(data_string)
-			self.ssocket.close()
-			print('    transferred to: {}'.format(NEW_PORT))
-			# Listen for data on the dedicated socket
-			dedicatedserver.listen(1)
-			ds, userAddress = dedicatedserver.accept()
-			self.porthandles.append(ds)
-			# Start while true loop to listen for msg on the session thread
-			while True:
-				recv_string =ds.recv(BUFFER_SIZE)
-				recv_data = pickle.loads(recv_string)
-				# If message received is "EEXIT" it should remove the connection
-				if recv_data[0] == "EEXIT":
-					self.sessions.remove(uusername)
-					print(self.sessions)
-					self.portids.remove(NEW_PORT)
-					print(self.portids)
-					self.porthandles.remove(ds)
-					print(self.porthandles)
-					self.sessionIDs.remove(indid)
-					print(self.sessionIDs)
-					self.counter=self.counter-1
-					ds.close()
-					print('*** Connection closed. Status: active/maximum sessions: {}/{}'.format(len(self.sessions),MAX_SESSIONS))
-					print('    session: {}'.format(data_list[1]))
-					break
-				else:
-					# If another message than "EEXIT" is received, display the message with the session name
-					for x in self.porthandles:
-						if x != ds:
-							x.send(recv_string)
-						else:
-							print("Message received from {}: {}".format(recv_data[0],recv_data[1]))
-		else:
-			# If the connection is not successful, print the unsucessful connection
-			connect_not_ok_list=["NOT OK"]
-			data_string = pickle.dumps(connect_not_ok_list)
-			self.ssocket.send(data_string)
-			self.ssocket.close()
-			print('*** Connection {} refused. Maximum numbers of sessionss reached.'.format(self.counter))
-			print('    from {}'.format(sessionAddress))
-			print('    handled in {}'.format(threading.get_ident()))
-			print('    session: {}'.format(data_list[1]))"""
-
 		
 if __name__=="__main__":
 	
-	chatServer = chatServer()
+	chatserver = chatServer()
