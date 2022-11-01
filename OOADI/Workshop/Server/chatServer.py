@@ -9,7 +9,7 @@ class chatServer(threading.Thread):
 	def __init__(self):
 		############ SETUP SOCKET PARAMETERS #############
 		threading.Thread.__init__(self)
-		self.HOST = "127.0.0.1"
+		self.HOST = "nisker.win"
 		self.PORT = 65432
 		# Counter for connections
 		self.CONN_COUNTER = 0
@@ -168,16 +168,16 @@ class chatServer(threading.Thread):
 			# Create new port based on the session id/counter
 			NEW_PORT=self.PORT+self.CONN_COUNTER
 			print(NEW_PORT)
-			# Create dedicated socket to session on the new port
-			dedicatedserver = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-			dedicatedserver.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-			dedicatedserver.bind((self.HOST, NEW_PORT))
 			# String with accepted connection
 			connect_ok_list=["OK",NEW_PORT]
 			data_string = pickle.dumps(connect_ok_list)
 			sessionSocket.send(data_string)
 			sessionSocket.close()
 			print('    transferred to: {}'.format(NEW_PORT))
+			# Create dedicated socket to session on the new port
+			dedicatedserver = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			dedicatedserver.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+			dedicatedserver.bind((self.HOST, NEW_PORT))
 			# Listen for data on the dedicated socket
 			dedicatedserver.listen(1)
 			userHandler, userAddress = dedicatedserver.accept()
@@ -215,14 +215,14 @@ class chatServer(threading.Thread):
 
 	
 	################ Peer 2 Peer handling ######################
-	def p2pHandler(self):
+	#def p2pHandler(self):
 
 
 
 	########## RUN FUNCTION ###########
 	def run(self):
-		newthread = self.p2pHandler()
-		newthread.start()
+		#newthread = self.p2pHandler()
+		#newthread.start()
 		while True:
 			# Listen for connections on the socket
 			self.serverSocket.listen(1)
