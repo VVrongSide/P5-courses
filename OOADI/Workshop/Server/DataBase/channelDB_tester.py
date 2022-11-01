@@ -91,8 +91,6 @@ class Channel_DB(object):
 		else:
 			return self.dictionary
 
-	def run(self):	
-		return
 
 class TestFloatOperations(unittest.TestCase):
 	def setUp(self):											# Sets up (instantiates) a class to test all test cases
@@ -116,7 +114,6 @@ class TestFloatOperations(unittest.TestCase):
 		channel_creater = 'Account_0'
 
 		self.Channel_DB_manager.createChannel(new_channel,channel_creater)
-
 		self.assertEqual(self.Channel_DB_manager.lookup(channel=new_channel), [new_channel, [channel_creater], []])
 
 	def test_associateUser(self):
@@ -157,5 +154,6 @@ class TestFloatOperations(unittest.TestCase):
 				self.assertEqual(self.Channel_DB_manager.lookup(key=key_lookup, channel=new_channels[idx]), new_log_entrys[idx])
 
 			print(f'Lookup return: {self.Channel_DB_manager.lookup(key=key_lookup, channel=new_channels[idx], last_entry=False)}')
+
 if __name__=="__main__":
 	unittest.main()
