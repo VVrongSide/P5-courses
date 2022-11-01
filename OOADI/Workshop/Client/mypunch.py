@@ -24,7 +24,6 @@ class P2P:
         self.manager()
         return self.key
 
-
     def manager(self):
         sa = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sa.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -36,7 +35,7 @@ class P2P:
         data = recv_msg(sa)
         logger.debug("client %s %s - received data: %s", priv_addr[0], priv_addr[1], data)
         pub_addr = msg_to_addr(data)
-        send_msg(sa, addr_to_msg(pub_addr))
+        send_msg(sa, addr_to_msg_tok(pub_addr, "654"))
 
         data = recv_msg(sa)
         pubdata, privdata = data.split(b'|')
