@@ -48,8 +48,8 @@ class P2P:
         
         threads = {
             '1_connect': Thread(target=self.connect, args=(priv_addr, client_pub_addr,)),
-            '0_accept': Thread(target=self.accept, args=(priv_addr[1],)),
-            '1_accept': Thread(target=self.accept, args=(client_pub_addr[1],)),
+            #'0_accept': Thread(target=self.accept, args=(priv_addr[1],)),
+            #'1_accept': Thread(target=self.accept, args=(client_pub_addr[1],)),
             '2_connect': Thread(target=self.connect, args=(priv_addr, client_priv_addr,)),
         }
 
@@ -81,7 +81,7 @@ class P2P:
                 continue
             else:
                 logger.info("Accept %s connected!", port)
-            data = recv_msg(s)
+            data = recv_msg(conn)
             print(data)
             self.STOP.set()
 
