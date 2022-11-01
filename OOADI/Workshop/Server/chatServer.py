@@ -5,7 +5,7 @@ import socket
 import os.path
 import threading
 
-class sessionManager(threading.Thread):
+class chatServer(threading.Thread):
 	def __init__(self):
 		threading.Thread.__init__(self)
 		self.HOST = "127.0.0.1"
@@ -17,9 +17,9 @@ class sessionManager(threading.Thread):
 		self.MAX_SESSIONS = 5
 		self.SESSION_LIST = []
 		self.PORT_HANDLES = []
-		self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-		self.server.bind((self.HOST, self.PORT))
+		self.serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		self.serverSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+		self.serverSocket.bind((self.HOST, self.PORT))
 
 		self.accountDB_fn = os.path.join("DataBase","account_DB_manager.txt") 
 		self.ChannelDB_fn = os.path.join("DataBase","Channel_DB_manager.txt")
@@ -139,11 +139,10 @@ class sessionManager(threading.Thread):
 			case "chatLogs":
 				return self.getLogs(datarecv[1], lastEntry=False)
 
-	def connectionHandler(self, sessionAddress, sessionSocket):
-		# Receive data on the session socket
-		r = sessionSocket.recv(self.BUFFER_SIZE)
-		# Load data using pickle
-		data_list = pickle.loads(r)
+
+	def sessionManager(self, sessionAddress, sessionSocket):
+		# Recieve datalist from userSocket
+		data_list = pickle.loads(sessionSocket.recv(self.BUFFER_SIZE))
 		# Check if number of sessions is larger than max allowed sessions
 		if len(self.SESSION_LIST)<self.MAX_SESSIONS:
 			# Set session username as second entry in the unpickled object
@@ -209,13 +208,13 @@ class sessionManager(threading.Thread):
 	def run(self):
 		while True:
 			# Listen for connections on the socket
-			self.server.listen(1)
+			self.serverSocket.listen(1)
 			# Saves the socket and address of the session connecting
-			sessionSocket, sessionAddress = self.server.accept()
+			sessionSocket, sessionAddress = self.serverSocket.accept()
 			# Increment the number of connections
 			self.CONN_COUNTER=self.CONN_COUNTER+1
 			# Create and start new thread with a sesssion
-			newthread = self.connectionHandler(sessionAddress, sessionSocket)
+			newthread = self.sessionManager(sessionAddress, sessionSocket)
 			newthread.start()
 
 
@@ -298,4 +297,4 @@ class sessionManager(threading.Thread):
 		
 if __name__=="__main__":
 	
-	serverSession = sessionManager()
+	chatServer = chatServer()
