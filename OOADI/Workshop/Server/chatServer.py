@@ -214,8 +214,15 @@ class chatServer(threading.Thread):
 			print('    session: {}'.format(data_list[1]))
 
 	
+	################ Peer 2 Peer handling ######################
+	def p2pHandler(self):
+		
+
+
 	########## RUN FUNCTION ###########
 	def run(self):
+		newthread = self.p2pHandler()
+		newthread.start()
 		while True:
 			# Listen for connections on the socket
 			self.serverSocket.listen(1)
