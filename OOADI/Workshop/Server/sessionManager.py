@@ -1,4 +1,4 @@
-	from DataBase.accountDB import account_DB
+from DataBase.accountDB import account_DB
 from DataBase.channelDB import Channel_DB
 import pickle
 import socket
@@ -6,14 +6,21 @@ import os.path
 import threading
 
 class sessionManager(threading.Thread):
-	def __init__(self,sessionAddress,sessionSocket,sc,uu,ii,pi,hi):
+	def __init__(self):
 		threading.Thread.__init__(self)
-		self.ssocket = sessionSocket
-		self.counter = sc
-		self.sessions = uu
-		self.sessionIDs = ii
-		self.portids = pi
-		self.porthandles = hi
+		self.HOST = "127.0.0.1"
+		self.PORT = 65432
+		# Counter for connections
+		self.CONN_COUNTER = 0
+		# Receive Buffer size (power of 2)    
+		self.BUFFER_SIZE = 1024  
+		self.MAX_SESSIONS = 5
+		self.SESSION_LIST = []
+		self.PORT_HANDLES = []
+		self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+		self.server.bind((self.HOST, self.PORT))
+
 		self.accountDB_fn = os.path.join("DataBase","account_DB_manager.txt") 
 		self.ChannelDB_fn = os.path.join("DataBase","Channel_DB_manager.txt")
 		if not os.path.exists(self.accountDB_fn):
@@ -111,7 +118,7 @@ class sessionManager(threading.Thread):
 		
 		ChannelDB.logEntry(Channel_name, msg)
 
-		with open(self.ChannelDB_fn, "wb") as picklefile:
+		with open(self.ChannelDB_fn, "wb") as pickle_file:
 			pickle.dump(ChannelDB, pickle_file)
 
 
@@ -132,8 +139,87 @@ class sessionManager(threading.Thread):
 			case "chatLogs":
 				return self.getLogs(datarecv[1], lastEntry=False)
 
+	def connectionHandler(self, sessionAddress, sessionSocket):
+		# Receive data on the session socket
+		r = sessionSocket.recv(self.BUFFER_SIZE)
+		# Load data using pickle
+		data_list = pickle.loads(r)
+		# Check if number of sessions is larger than max allowed sessions
+		if len(self.SESSION_LIST)<self.MAX_SESSIONS:
+			# Set session username as second entry in the unpickled object
+			username=data_list[1]
+			# Append username to session
+			self.SESSION_LIST.append(username)
+
+			################ TESTING PURPOSE ###################
+			print('*** Connection {} accepted. Status: active/maximum sessions: {}/{}'.format(self.CONN_COUNTER,len(self.sessions),self.MAX_SESSIONS))
+			print('    from {}'.format(sessionAddress))
+			print('    handled in {}'.format(threading.get_ident()))
+			print('    session: {}'.format(data_list[1]))
+			#####################################################
+			# Create new port based on the session id/counter
+			NEW_PORT=self.PORT+self.CONN_COUNTER
+			print(NEW_PORT)
+			# Create dedicated socket to session on the new port
+			dedicatedserver = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			dedicatedserver.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+			dedicatedserver.bind((self.HOST, NEW_PORT))
+			# String with accepted connection
+			connect_ok_list=["OK",NEW_PORT]
+			data_string = pickle.dumps(connect_ok_list)
+			sessionSocket.send(data_string)
+			sessionSocket.close()
+			print('    transferred to: {}'.format(NEW_PORT))
+			# Listen for data on the dedicated socket
+			dedicatedserver.listen(1)
+			userHandler, userAddress = dedicatedserver.accept()
+			self.PORT_HANDLES.append(userHandler)
+			# Start while true loop to listen for msg on the session thread
+			while True:
+				recv_string = userHandler.recv(self.BUFFER_SIZE)
+				recv_data = pickle.loads(recv_string)
+				# If message received is "EEXIT" it should remove the connection
+				if recv_data[0] == "EEXIT":
+					self.SESSION_LIST.remove(username)
+					print(self.SESSION_LIST)
+					self.PORT_HANDLES.remove(userHandler)
+					print(self.PORT_HANDLES)
+					
+					self.CONN_COUNTER-=1
+					userHandler.close()
+					print('*** Connection closed. Status: active/maximum sessions: {}/{}'.format(len(self.SESSION_LIST),self.MAX_SESSIONS))
+					print('    session: {}'.format(data_list[1]))
+					break
+				else:
+					returnVal = self.recieveData(recv_data)
+					sendData = [recv_data[0], returnVal]
+					userHandler.send(pickle.dumps(sendData))
+		else:
+			# If the connection is not successful, print the unsucessful connection
+			connect_not_ok_list=["NOT OK"]
+			data_string = pickle.dumps(connect_not_ok_list)
+			sessionSocket.send(data_string)
+			sessionSocket.close()
+			print('*** Connection {} refused. Maximum numbers of sessions reached.'.format(self.CONN_COUNTER))
+			print('    from {}'.format(sessionAddress))
+			print('    handled in {}'.format(threading.get_ident()))
+			print('    session: {}'.format(data_list[1]))
+
 ########## RUN FUNCTION ###########
 	def run(self):
+		while True:
+			# Listen for connections on the socket
+			self.server.listen(1)
+			# Saves the socket and address of the session connecting
+			sessionSocket, sessionAddress = self.server.accept()
+			# Increment the number of connections
+			self.CONN_COUNTER=self.CONN_COUNTER+1
+			# Create and start new thread with a sesssion
+			newthread = self.connectionHandler(sessionAddress, sessionSocket)
+			newthread.start()
+
+
+	"""def run(self):
 		# Receive data on the session socket
 		r = self.ssocket.recv(BUFFER_SIZE)
 		# Load data using pickle
@@ -207,33 +293,9 @@ class sessionManager(threading.Thread):
 			print('*** Connection {} refused. Maximum numbers of sessionss reached.'.format(self.counter))
 			print('    from {}'.format(sessionAddress))
 			print('    handled in {}'.format(threading.get_ident()))
-			print('    session: {}'.format(data_list[1]))
+			print('    session: {}'.format(data_list[1]))"""
 
 		
 if __name__=="__main__":
-	HOST = "127.0.0.1"
-	PORT = 65432
-	# Counter for connections
-	CONN_COUNTER = 0
-	# Receive Buffer size (power of 2)    
-	BUFFER_SIZE = 1024  
-	MAX_SESSIONS = 5
-	SESSION_LIST = []
-	ID_LIST = []
-	PORT_IDS = []
-	PORT_HANDLES = []
-	server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-	server.bind((HOST, PORT))
-	print("SessionManager started.")
-	print("Waiting for session connections...")
-	while True:
-		# Listen for connections on the socket
-		server.listen(1)
-		# Saves the socket and address of the session connecting
-		sessionSocket, sessionAddress = server.accept()
-		# Increment the number of connections
-		CONN_COUNTER=CONN_COUNTER+1
-		# Create and start new thread with a sesssion
-		newthread = sessionManager(sessionAddress, sessionSocket, CONN_COUNTER, SESSION_LIST, ID_LIST, PORT_IDS, PORT_HANDLES)
-		newthread.start()
+	
+	serverSession = sessionManager()
