@@ -82,9 +82,9 @@ class P2P:
                 continue
             else:
                 logger.info("Accept %s connected!", port)
-        data = recv_msg(sa)
-        print(data)
-        self.STOP.set()
+            data = recv_msg(s)
+            print(data)
+            self.STOP.set()
 
     def connect(self, local_addr, addr):
         logger.debug("connect from %s to %s", local_addr, addr)
