@@ -48,6 +48,8 @@ class P2P:
         
         threads = {
             '1_connect': Thread(target=self.connect, args=(priv_addr, client_pub_addr,)),
+            '0_accept': Thread(target=self.accept, args=(priv_addr[1],)),
+            '1_accept': Thread(target=self.accept, args=(client_pub_addr[1],)),
             '2_connect': Thread(target=self.connect, args=(priv_addr, client_priv_addr,)),
         }
 
@@ -63,6 +65,26 @@ class P2P:
                     continue
                 if not threads[name].is_alive():
                     threads.pop(name)
+
+    def accept(self, port):
+        logger.info("accept %s", port)
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+        s.bind(('', port))
+        s.listen(1)
+        s.settimeout(5)
+        while not self.STOP.is_set():
+            try:
+                conn, addr = s.accept()
+            except socket.timeout:
+                print("s.accept(): timeput")
+                continue
+            else:
+                logger.info("Accept %s connected!", port)
+        data = recv_msg(sa)
+        print(data)
+        self.STOP.set()
 
     def connect(self, local_addr, addr):
         logger.debug("connect from %s to %s", local_addr, addr)
@@ -88,5 +110,5 @@ class P2P:
 
 if __name__ == '__main__':
      p2p = P2P()
-     print(p2p.get())
-     #p2p.send(b'hej')
+     #print(p2p.get())
+     p2p.send(b'hej')
