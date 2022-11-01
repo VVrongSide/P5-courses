@@ -78,7 +78,6 @@ class P2P:
             try:
                 conn, addr = s.accept()
             except socket.timeout:
-                print("s.accept(): timeput")
                 continue
             else:
                 logger.info("Accept %s connected!", port)
