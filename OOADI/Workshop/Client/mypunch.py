@@ -48,8 +48,8 @@ class P2P:
 		
 		threads = {
 			'1_connect': Thread(target=self.connect, args=(priv_addr, client_pub_addr,)),
-			'0_accept': Thread(target=self.accept, args=(priv_addr[1],)),
-			'1_accept': Thread(target=self.accept, args=(client_pub_addr[1],)),
+			#'0_accept': Thread(target=self.accept, args=(priv_addr[1],)),
+			#'1_accept': Thread(target=self.accept, args=(client_pub_addr[1],)),
 			'2_connect': Thread(target=self.connect, args=(priv_addr, client_priv_addr,)),
 		}
 
@@ -77,15 +77,21 @@ class P2P:
 		s.bind(local_addr)
 		while not self.STOP.is_set():
 			if self.key == '':
-				s.listen(1)
-				conn, conn_addr = s.accept()
-				self.key = conn.recv(1024)
-				
+				try:	
+					s.listen(1)
+					conn, conn_addr = s.accept()
+					self.key = conn.recv(1024)
+				except socket.timeout:
+					continue
+
 				logger.debug(self.key)	
 				self.STOP.set()
 
 			else:
-				s.connect(addr)
+				try:
+					s.connect(addr)
+				except socket.timeout:
+					continue
 				s.send(self.key)
 				self.STOP.set()
 		s.close()
@@ -95,5 +101,5 @@ class P2P:
 
 if __name__ == '__main__':
 	p2p = P2P()
-	#print(p2p.get())
-	p2p.send(b'hej')
+	print(p2p.get())
+	#p2p.send(b'hej')
