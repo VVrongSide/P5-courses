@@ -134,18 +134,18 @@ class chatServer(threading.Thread):
 	def recieveData(self, datarecv):
 		match datarecv[0]:
 			case "login":
-				return self.accountLogin(datarecv[1], datarecv[2])
+				return self.accountLogin(datarecv[1], datarecv[2])  ### inputs(Username, Password)
 			case "createUser":
-				return self.createUser(datarecv[1], datarecv[2])
+				return self.createUser(datarecv[1], datarecv[2]) ### inputs(Username, Password)
 			case "joinChannel":
-				return self.associateUser(datarecv[1], datarecv[2])
+				return self.associateUser(datarecv[1], datarecv[2]) ### inputs(Username,Channel_name)
 			case "createChannel":
-				return self.createChannel(datarecv[1], datarecv[2])
+				return self.createChannel(datarecv[1], datarecv[2]) ### inputs(Username, Channel_name)
 			case "lastChat":
-				return self.getLog(datarecv[1])
+				return self.getLog(datarecv[1]) ### inputs(Channel_name)
 			case "chatLog":
-				return self.getLog(datarecv[1], lastEntry=False)
-			case "logEntry":
+				return self.getLog(datarecv[1], lastEntry=False) ### input(Channel_name)
+			case "logEntry":	###Input(Channel_name, msg)
 				return self.logEntry(datarecv[1], datarecv[2])
 
 
@@ -216,7 +216,7 @@ class chatServer(threading.Thread):
 	
 	################ Peer 2 Peer handling ######################
 	def p2pHandler(self):
-		
+
 
 
 	########## RUN FUNCTION ###########
