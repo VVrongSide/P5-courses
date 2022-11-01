@@ -3,7 +3,7 @@ import pickle
 class Client_DB(object):
 	
 	def __init__(self):
-		self.columns = ['Channel_name','Channel_members','Channel_log']
+		self.columns = ['Channel_name','Channel_key','Channel_log']
 		self.dictionary = self.constructDict()
 
 	def __str__(self):
