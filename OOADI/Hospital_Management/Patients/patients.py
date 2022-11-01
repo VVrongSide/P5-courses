@@ -29,6 +29,5 @@ class Patient(object):
             self.Medical = Medical_Record(Medical[0], Medical[1])
             self.Financial = Financial_Record(Financial[0], Financial[1])
 
-
     def run(self):
         return

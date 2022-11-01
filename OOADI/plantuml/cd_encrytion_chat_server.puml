@@ -43,7 +43,7 @@ class Server{
 
 Server "1\n" <|-left- "*\n" Server_Session_manager
 
-class User_db_manager{
+class Account_db_manager{
         Method
         ..
         createAccount():void
@@ -51,7 +51,7 @@ class User_db_manager{
         lookupAccount():void     
 }
 
-User_db_manager "1\n" -left-|> "1\n" Server
+Account_db_manager "1\n" -left-|> "1\n" Server
 
 package Account_db <<database>>{
         map Account_db {
@@ -60,7 +60,7 @@ package Account_db <<database>>{
                 associatedChannel => list
         }
 }
-User_db "1" -left-* "1" User_db_manager
+Account_db "1" -left-* "1" Account_db_manager
 
 class Channel_db_manager{
         Method
