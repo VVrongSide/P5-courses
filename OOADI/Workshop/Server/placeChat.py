@@ -178,6 +178,7 @@ class chatServer(threading.Thread):
 		self.serverSocket.listen(1)
 		while True:
 			# Saves the socket and address of the session connecting
+			print("We have thread if printed twice")
 			sessionSocket, sessionAddress = self.serverSocket.accept()
 			print(f'Connected to {sessionAddress[0]}:{sessionAddress[1]}')
 			# Create and start new thread with a sesssion
