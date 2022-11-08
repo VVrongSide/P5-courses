@@ -9,7 +9,7 @@ class chatServer(threading.Thread):
 	def __init__(self):
 		############ SETUP SOCKET PARAMETERS #############
 		threading.Thread.__init__(self)
-		self.HOST = "nisker.win"
+		self.HOST = ""
 		self.PORT = 65432
 		# Counter for connections
 		self.CONN_COUNTER = 0
