@@ -176,7 +176,7 @@ class chatServer(threading.Thread):
 		self.serverSocket.listen()
 		while True:
 			# Listen for connections on the socket
-			
+			self.serverSocket.listen()
 			# Saves the socket and address of the session connecting
 			sessionSocket, sessionAddress = self.serverSocket.accept()
 			print(f'Connected to {sessionAddress[0]}:{sessionAddress[1]}')

@@ -42,8 +42,6 @@ class ReceiveData(threading.Thread):
 		self.ds = tcp_socket
 		self.BUFFER_SIZE = 1024
 	def run(self):
-		recv_string = self.ds.recv(self.BUFFER_SIZE)
-		print(recv_string.decode('utf-8'))
 		while True:
 			recv_string = self.ds.recv(BUFFER_SIZE)
 			recv_data = pickle.loads(recv_string)
@@ -60,6 +58,8 @@ if __name__=="__main__":
 	print("Welcome {}. Initializing connection to the server.".format(SESSION))
 	s = socket(AF_INET,SOCK_STREAM)
 	s.connect((HOST, PORT))
+	recv_string = s.recv(BUFFER_SIZE)
+	print(recv_string.decode('utf-8'))
 	thread1 = SendData(s,SESSION)
 	thread2 = ReceiveData(s)
 	thread1.start()
