@@ -179,7 +179,7 @@ class chatServer(threading.Thread):
 			
 			# Saves the socket and address of the session connecting
 			sessionSocket, sessionAddress = self.serverSocket.accept()
-			print(f'Connected to {sessionAddress[0]}{sessionAddress[1]}')
+			print(f'Connected to {sessionAddress[0]}:{sessionAddress[1]}')
 			# Create and start new thread with a sesssion
 			newthread = self.clientHandler(sessionSocket)
 			newthread.start()

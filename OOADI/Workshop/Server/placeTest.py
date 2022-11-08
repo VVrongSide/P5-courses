@@ -4,7 +4,7 @@ import pickle
 from time import sleep
 import threading
 
-HOST = "127.0.0.1"  # The server's hostname or IP address
+HOST = "nisker.win"  # The server's hostname or IP address
 PORT = 65432  # The port used by the server
 BUFFER_SIZE = 1024 # Size of the receive buffer
 
@@ -13,6 +13,8 @@ class SendData(threading.Thread):
 		threading.Thread.__init__(self)
 		self.ds=tcp_socket
 		self.u=user
+		self.BUFFER_SIZE = 1024
+
 	def run(self):
 		print("Write text and press enter to send [EEXIT to leave chat]: ")
 		while True:
@@ -37,10 +39,13 @@ class SendData(threading.Thread):
 class ReceiveData(threading.Thread):
 	def __init__(self,tcp_socket):
 		threading.Thread.__init__(self)
-		self.ds=tcp_socket
+		self.ds = tcp_socket
+		self.BUFFER_SIZE = 1024
 	def run(self):
+		recv_string = self.ds.recv(self.BUFFER_SIZE)
+		print(recv_string.decode('utf-8'))
 		while True:
-			recv_string =self.ds.recv(BUFFER_SIZE)
+			recv_string = self.ds.recv(BUFFER_SIZE)
 			recv_data = pickle.loads(recv_string)
 			if type(recv_data[0]) == bool:
 				if recv_data[0]:
