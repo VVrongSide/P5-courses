@@ -173,10 +173,9 @@ class chatServer(threading.Thread):
 	def run(self):
 		#newthread = self.p2pHandler()
 		#newthread.start()
-		self.serverSocket.listen()
 		while True:
 			# Listen for connections on the socket
-			self.serverSocket.listen()
+			self.serverSocket.listen(1)
 			# Saves the socket and address of the session connecting
 			sessionSocket, sessionAddress = self.serverSocket.accept()
 			print(f'Connected to {sessionAddress[0]}:{sessionAddress[1]}')
