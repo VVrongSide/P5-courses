@@ -8,7 +8,7 @@ import threading
 class chatServer(threading.Thread):
 	def __init__(self):
 		############ SETUP SOCKET PARAMETERS #############
-		threading.Thread.__init__(self)
+		super().__init__()
 		self.HOST = ""
 		self.PORT = 65432
 		# Counter for connections
@@ -182,8 +182,10 @@ class chatServer(threading.Thread):
 			sessionSocket, sessionAddress = self.serverSocket.accept()
 			print(f'Connected to {sessionAddress[0]}:{sessionAddress[1]}')
 			# Create and start new thread with a sesssion
-			newthread = self.clientHandler(sessionSocket)
-			newthread.start()
+			t = threading.Thread(target=self.clientHandler, args=(sessionSocket, ))
+			t.start()
+			#newthread = self.clientHandler(sessionSocket)
+			#newthread.start()
 
 
 		
