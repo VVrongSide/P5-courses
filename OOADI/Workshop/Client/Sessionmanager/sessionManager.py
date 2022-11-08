@@ -9,19 +9,6 @@ import string
 
 #############################################################################
 #
-#
-#
-#############################################################################
-
-def get_random_string(length):
-    # choose from all lowercase letter
-    letters = string.ascii_lowercase
-    result_str = ''.join(random.choice(letters) for i in range(length))
-    print("Random string of length", length, "is:", result_str)
-
-
-#############################################################################
-#
 #                           Class
 #
 #############################################################################
@@ -60,8 +47,9 @@ class UI_Session_Manager:
     def logout():
         return
 
-    def encryptMessage(message):
-        encMessage = cryptography.fernet()
+    def encryptMessage(key, message):
+        encMessage = key.encrypt(message)
+        return encMessage
         
     
     def decrypt():

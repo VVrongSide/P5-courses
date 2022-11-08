@@ -2,13 +2,14 @@ import socket
 import pickle
 import Interface_Soket
 from cryptography import fernet as f
+import sessionManager as SM
 
 host = "127.0.0.1"
 port = 2000
 
 #############################################################################
 #
-#                           Classes
+#                           Class
 #
 #############################################################################
 
@@ -20,6 +21,7 @@ class UI_Channel_Manager:
         self.key = Fernet(self.key)
 
     def sendMessage():
+        SM.forwardMessage()
         return
     
     def updateLog():
@@ -30,7 +32,8 @@ class UI_Channel_Manager:
         except:
             return False
 
-[[tid,navn, besked],[tid,navn,besked],[tid,navn,besked]]
+
+#[[tid,navn, besked],[tid,navn,besked],[tid,navn,besked]]
 
 
 
