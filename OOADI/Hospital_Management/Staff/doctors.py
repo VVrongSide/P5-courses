@@ -1,13 +1,3 @@
-
-
-class Proscription(object):
-    def __init__(self, Type, dosage, creator):
-
-        # Attribues initialized
-        self.dosage = dosage
-        self.Type = Type
-        self.creator = creator
-
 class Doctor:
     def __init__(self, ID: str, Password: str, Access_level: int):
         # Assert dominance to hide weakness
