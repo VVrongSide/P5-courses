@@ -18,8 +18,9 @@ class chatServer(threading.Thread):
 		self.MAX_SESSIONS = 5
 		self.SESSION_LIST = []
 		self.PORT_HANDLES = []
-		self.serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		self.serverSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+		self.serverSocket = socket.socket()
+		#self.serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		#self.serverSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		self.serverSocket.bind((self.HOST, self.PORT))
 
 
@@ -173,9 +174,9 @@ class chatServer(threading.Thread):
 	def run(self):
 		#newthread = self.p2pHandler()
 		#newthread.start()
+		# Listen for connections on the socket
+		self.serverSocket.listen(1)
 		while True:
-			# Listen for connections on the socket
-			self.serverSocket.listen(1)
 			# Saves the socket and address of the session connecting
 			sessionSocket, sessionAddress = self.serverSocket.accept()
 			print(f'Connected to {sessionAddress[0]}:{sessionAddress[1]}')
