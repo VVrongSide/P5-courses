@@ -209,10 +209,11 @@ class chatServer(threading.Thread):
 			if recv_data[0] == 'BYE':
 				break	
 
-			if recv_data[0] != 'login':
-				returnVal = self.recieveData(recv_data)
-				sendData = [recv_data[0], returnVal]
-				connection.sendall(pickle.dumps(sendData))
+			returnVal = self.recieveData(recv_data)
+			sendData = [recv_data[0], returnVal]
+			connection.sendall(pickle.dumps(sendData))
+			
+			if recv_data[0] != 'login' or returnVal == False:
 				continue
 				
 			userIndex = self.onlineUsers["ipAddress"].index(ipaddress)
