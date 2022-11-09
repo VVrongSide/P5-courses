@@ -55,8 +55,9 @@ class ReceiveData(threading.Thread):
 				else:
 					print(recv_data)
 				continue
+			print(recv_data)
 			self.ds.send(pickle.dumps(self.aliveCheck))
-			
+
 
 
 if __name__=="__main__":

@@ -219,11 +219,11 @@ class chatServer(threading.Thread):
 		# Loop which keeps listening on the connection untill a BYE signal is recieved
 		while True:
 			try:
-				connection.send(pickle.dumps(self.aliveCheck))
-				alivestring = connection.recv(self.BUFFER_SIZE)
-				alivestatus = pickle.loads(alivestring)
-				if alivestatus[0] == 'alive' and alivestatus[1] == False:
-					self.userPop(ipaddress)
+				try:
+					connection.send(pickle.dumps(self.aliveCheck))
+					connection.recv(self.BUFFER_SIZE)
+				except socket.timeout:
+					self.userPop()
 					break
 
 				recv_string = connection.recv(self.BUFFER_SIZE)
