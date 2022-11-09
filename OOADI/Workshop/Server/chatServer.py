@@ -215,21 +215,13 @@ class chatServer(threading.Thread):
 ############## Handles the individual connections with clients (Started as thread for single client) ##################
 	def clientHandler(self, connection, ipaddress):
 		#connection.send(str.encode('You are now connected to the replay server... Type BYE to stop'))
-		connection.settimeout(5)
+		
 		# Loop which keeps listening on the connection untill a BYE signal is recieved
 		while True:
 			try:
-				try:
-					connection.settimeout(3)
-					connection.send(pickle.dumps(self.aliveCheck))
-					connection.recv(self.BUFFER_SIZE)
-				except socket.timeout:
-					print("I am in timeout")
-					self.userPop(ipaddress)
-					break
-				
-				connection.settimeout(10)
 				recv_string = connection.recv(self.BUFFER_SIZE)
+				if not recv_string:
+					break
 				recv_data = pickle.loads(recv_string)
 			except:
 				continue
@@ -244,6 +236,7 @@ class chatServer(threading.Thread):
 			
 		
 		# When BYE is recieved close the connection
+		self.userPop(ipaddress)
 		connection.close()
 
 
