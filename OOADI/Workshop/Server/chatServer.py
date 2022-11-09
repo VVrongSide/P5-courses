@@ -191,13 +191,15 @@ class chatServer(threading.Thread):
 
 ############## Handles the individual connections with clients (Started as thread for single client) ##################
 	def clientHandler(self, connection):
-		connection.send(str.encode('You are now connected to the replay server... Type BYE to stop'))
+		#connection.send(str.encode('You are now connected to the replay server... Type BYE to stop'))
 
 		# Loop which keeps listening on the connection untill a BYE signal is recieved
 		while True:
-			recv_string = connection.recv(self.BUFFER_SIZE)
-			recv_data = pickle.loads(recv_string)
-
+			try:
+				recv_string = connection.recv(self.BUFFER_SIZE)
+				recv_data = pickle.loads(recv_string)
+			except:
+				continue
 			if recv_data[0] == 'BYE':
 				break	
 			returnVal = self.recieveData(recv_data)
