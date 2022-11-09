@@ -18,6 +18,11 @@ class chatServer(threading.Thread):
 		self.serverSocket = socket.socket()
 		self.serverSocket.bind(("", self.PORT))
 
+		self.onlineUsers = {
+			"ipAddress" : [],
+			"Username" : [],
+			}
+
 
 		######### Initialize database files #################
 		# Define the paths for where the pickled DB files are
@@ -63,6 +68,7 @@ class chatServer(threading.Thread):
 		with open(self.accountDB_fn, "rb" ) as pickle_file:
 			accountDB = pickle.load(pickle_file)
 		ret = accountDB.logIn(Username, Password)
+
 
 		# Return whether the login was succesful or not
 		return ret
@@ -190,7 +196,7 @@ class chatServer(threading.Thread):
 
 
 ############## Handles the individual connections with clients (Started as thread for single client) ##################
-	def clientHandler(self, connection):
+	def clientHandler(self, connection, ipaddress):
 		#connection.send(str.encode('You are now connected to the replay server... Type BYE to stop'))
 
 		# Loop which keeps listening on the connection untill a BYE signal is recieved
@@ -202,6 +208,10 @@ class chatServer(threading.Thread):
 				continue
 			if recv_data[0] == 'BYE':
 				break	
+			if recv_data[0] == 'login':
+				userIndex = self.onlineUsers["ipAddress"].index(ipaddress)
+				self.onlineUsers["username"][userIndex] = recv_data[1]
+				print(self.onlineUsers)
 			returnVal = self.recieveData(recv_data)
 			sendData = [recv_data[0], returnVal]
 			connection.sendall(pickle.dumps(sendData))
@@ -224,9 +234,11 @@ class chatServer(threading.Thread):
 			# Accept new connections to the server
 			sessionSocket, sessionAddress = self.serverSocket.accept()
 			print(f'Connection from: ({sessionAddress[0]}:{sessionAddress[1]})')
+			self.onlineUsers["ipAddress"].append(sessionAddress)
+			self.onlineUsers["Username"].append(None)
 			
 			# Create and start new thread which handles the new connection
-			t = threading.Thread(target=self.clientHandler, args=(sessionSocket, ))
+			t = threading.Thread(target=self.clientHandler, args=(sessionSocket, sessionAddress, ))
 			t.start()
 		
 if __name__=="__main__":
