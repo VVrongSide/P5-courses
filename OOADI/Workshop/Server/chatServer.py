@@ -174,25 +174,30 @@ class chatServer(threading.Thread):
 
 
 ########## SOCKET HANDLING ###########
-	def recieveData(self, datarecv):
-		# Match - Case for 
-		match datarecv[0]:
-			case "login":
-				return self.accountLogin(datarecv[1], datarecv[2])  ### inputs(Username, Password)
-			case "createUser":
-				return self.createUser(datarecv[1], datarecv[2]) ### inputs(Username, Password)
-			case "joinChannel":
-				return self.associateUser(datarecv[1], datarecv[2]) ### inputs(Username,Channel_name)
-			case "createChannel":
-				return self.createChannel(datarecv[1], datarecv[2]) ### inputs(Username, Channel_name)
-			case "lastChat":
-				return self.getLog(datarecv[1]) ### inputs(Channel_name)
-			case "chatLog":
-				return self.getLog(datarecv[1], lastEntry=False) ### input(Channel_name)
-			case "logEntry":
-				return self.logEntry(datarecv[1], datarecv[2]) ###Input(Channel_name, msg)
-			case _:
-				return "Invalid request type"
+	def recieveData(self, datarecv, ipaddress):
+		# Match - Case for recieving data
+		userIndex = self.onlineUsers["ipAddress"].index(ipaddress)
+		username = self.onlineUsers["Username"][userIndex]
+		try:
+			match datarecv[0]:
+				case "login":
+					return self.accountLogin(datarecv[1], datarecv[2])  ### inputs(Username, Password)
+				case "createUser":
+					return self.createUser(datarecv[1], datarecv[2]) ### inputs(Username, Password)
+				case "joinChannel":
+					return self.associateUser(username, datarecv[1]) ### inputs(Username,Channel_name)
+				case "createChannel":
+					return self.createChannel(username, datarecv[1]) ### inputs(Username, Channel_name)
+				case "lastChat":
+					return self.getLog(datarecv[1]) ### inputs(Channel_name)
+				case "chatLog":
+					return self.getLog(datarecv[1], lastEntry=False) ### input(Channel_name)
+				case "logEntry":
+					return self.logEntry(datarecv[1], datarecv[2]) ###Input(Channel_name, msg)
+				case _:
+					return "Invalid request type"
+		except:
+			return False
 
 
 ############## Handles the individual connections with clients (Started as thread for single client) ##################
@@ -207,15 +212,21 @@ class chatServer(threading.Thread):
 			except:
 				continue
 			if recv_data[0] == 'BYE':
+				userIndex = self.onlineUsers["ipAddress"].index(ipaddress)
+				self.onlineUsers["ipAddress"].pop(userIndex)
+				self.onlineUsers["Username"].pop(userIndex)
+				print(self.onlineUsers)
 				break	
 
-			returnVal = self.recieveData(recv_data)
+			returnVal = self.recieveData(recv_data,ipaddress)
 			sendData = [recv_data[0], returnVal]
 			connection.sendall(pickle.dumps(sendData))
 			
+
 			if recv_data[0] != 'login' or returnVal == False:
 				continue
-				
+			
+
 			userIndex = self.onlineUsers["ipAddress"].index(ipaddress)
 			self.onlineUsers["Username"][userIndex] = recv_data[1]
 			print(self.onlineUsers)
