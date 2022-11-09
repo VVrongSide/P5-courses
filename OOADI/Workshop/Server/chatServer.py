@@ -220,12 +220,15 @@ class chatServer(threading.Thread):
 		while True:
 			try:
 				try:
+					connection.settimeout(3)
 					connection.send(pickle.dumps(self.aliveCheck))
 					connection.recv(self.BUFFER_SIZE)
 				except socket.timeout:
+					print("I am in timeout")
 					self.userPop()
 					break
-
+				
+				connection.settimeout(10)
 				recv_string = connection.recv(self.BUFFER_SIZE)
 				recv_data = pickle.loads(recv_string)
 			except:
