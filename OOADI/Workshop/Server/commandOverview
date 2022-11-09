@@ -1,0 +1,13 @@
+["login", string(Username), string(Password)] - bool as return (True for succesful login)
+
+["createUser", string(Username), string(Password)] - bool as return (True for success)
+
+["joinChannel", string(Username), string(Channelname)] - bool as return (True for success)
+
+["createChannel", string(Username), string(ChannelName)] - bool as return (True for success)
+
+["lastChat", string(ChannelName)] - returns last log input for the given channel
+
+["chatLog", string(ChannelName)] - returns the entire log for the given channel
+
+["logEntry", string(ChannelName), string(msg)] - no return
