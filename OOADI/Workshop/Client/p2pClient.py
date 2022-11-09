@@ -7,7 +7,7 @@ from threading import Event, Thread
 from util import *
 
 logger = logging.getLogger('client')
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(message)s')
+logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(message)s')
 
 class P2P:
     def __init__(self, Rhost = "nisker.win", Rport = 5005):
@@ -47,10 +47,10 @@ class P2P:
         )
         
         threads = {
+            '0_connect': Thread(target=self.connect, args=(priv_addr, client_priv_addr,)),
             '1_connect': Thread(target=self.connect, args=(priv_addr, client_pub_addr,)),
             #'0_accept': Thread(target=self.accept, args=(priv_addr[1],)),
             #'1_accept': Thread(target=self.accept, args=(client_pub_addr[1],)),
-            '2_connect': Thread(target=self.connect, args=(priv_addr, client_priv_addr,)),
         }
 
         for name in sorted(threads.keys()):
@@ -73,7 +73,7 @@ class P2P:
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
         s.bind(('', port))
         s.listen(1)
-        s.settimeout(5)
+        s.settimeout(2)
         while not self.STOP.is_set():
             try:
                 conn, addr = s.accept()
@@ -88,7 +88,7 @@ class P2P:
     def connect(self, local_addr, addr):
         logger.debug("connect from %s to %s", local_addr, addr)
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.settimeout(4)
+        s.settimeout(2)
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
         s.bind(local_addr)
@@ -110,4 +110,4 @@ class P2P:
 if __name__ == '__main__':
      p2p = P2P()
      print(p2p.get("☕"))
-     #p2p.send(b'hej', b'655')
+     #p2p.send(b'hej', "☕")
