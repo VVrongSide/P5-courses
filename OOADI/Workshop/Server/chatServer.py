@@ -208,14 +208,16 @@ class chatServer(threading.Thread):
 				continue
 			if recv_data[0] == 'BYE':
 				break	
-			if recv_data[0] == 'login':
-				userIndex = self.onlineUsers["ipAddress"].index(ipaddress)
-				self.onlineUsers["username"][userIndex] = recv_data[1]
-				print(self.onlineUsers)
-			returnVal = self.recieveData(recv_data)
-			sendData = [recv_data[0], returnVal]
-			connection.sendall(pickle.dumps(sendData))
-		
+
+			if recv_data[0] != 'login':
+				returnVal = self.recieveData(recv_data)
+				sendData = [recv_data[0], returnVal]
+				connection.sendall(pickle.dumps(sendData))
+				continue
+				
+			userIndex = self.onlineUsers["ipAddress"].index(ipaddress)
+			self.onlineUsers["Username"][userIndex] = recv_data[1]
+			print(self.onlineUsers)
 		# When BYE is recieved close the connection
 		connection.close()
 
