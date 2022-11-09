@@ -23,6 +23,8 @@ class chatServer(threading.Thread):
 			"Username" : [],
 			}
 
+		self.aliveCheck = ['alive']
+
 
 		######### Initialize database files #################
 		# Define the paths for where the pickled DB files are
@@ -41,6 +43,13 @@ class chatServer(threading.Thread):
 
 		############ Start run method ############
 		self.run()
+
+	########### Pop user from the onlineUsers dictionary ###############
+	def userPop(self,ipaddress):
+		userIndex = self.onlineUsers["ipAddress"].index(ipaddress)
+		self.onlineUsers["ipAddress"].pop(userIndex)
+		self.onlineUsers["Username"].pop(userIndex)
+		print(self.onlineUsers)
 
 
 #######################################	
@@ -63,12 +72,15 @@ class chatServer(threading.Thread):
 		
 
 	########### Check the username and password in the accountDB #########
-	def accountLogin(self, Username, Password):
+	def accountLogin(self, Username, Password, userIndex):
 		# Load the pickled account object
 		with open(self.accountDB_fn, "rb" ) as pickle_file:
 			accountDB = pickle.load(pickle_file)
 		ret = accountDB.logIn(Username, Password)
 
+		if ret:
+			self.onlineUsers["Username"][userIndex] = Username
+			print(self.onlineUsers)
 
 		# Return whether the login was succesful or not
 		return ret
@@ -181,7 +193,7 @@ class chatServer(threading.Thread):
 		try:
 			match datarecv[0]:
 				case "login":
-					return self.accountLogin(datarecv[1], datarecv[2])  ### inputs(Username, Password)
+					return self.accountLogin(datarecv[1], datarecv[2],userIndex)  ### inputs(Username, Password, userIndex)
 				case "createUser":
 					return self.createUser(datarecv[1], datarecv[2]) ### inputs(Username, Password)
 				case "joinChannel":
@@ -203,33 +215,31 @@ class chatServer(threading.Thread):
 ############## Handles the individual connections with clients (Started as thread for single client) ##################
 	def clientHandler(self, connection, ipaddress):
 		#connection.send(str.encode('You are now connected to the replay server... Type BYE to stop'))
-
+		connection.settimeout(30)
 		# Loop which keeps listening on the connection untill a BYE signal is recieved
 		while True:
 			try:
+				connection.send(pickle.dumps(self.aliveCheck))
+				alivestring = connection.recv(self.BUFFER_SIZE)
+				alivestatus = pickle.loads(alivestring)
+				if alivestatus[0] == 'alive' and alivestatus[1] == False:
+					self.userPop(ipaddress)
+					break
+
 				recv_string = connection.recv(self.BUFFER_SIZE)
 				recv_data = pickle.loads(recv_string)
 			except:
 				continue
+
 			if recv_data[0] == 'BYE':
-				userIndex = self.onlineUsers["ipAddress"].index(ipaddress)
-				self.onlineUsers["ipAddress"].pop(userIndex)
-				self.onlineUsers["Username"].pop(userIndex)
-				print(self.onlineUsers)
-				break	
+				self.userPop(ipaddress)
+				break
 
 			returnVal = self.recieveData(recv_data,ipaddress)
 			sendData = [recv_data[0], returnVal]
 			connection.sendall(pickle.dumps(sendData))
 			
-
-			if recv_data[0] != 'login' or returnVal == False:
-				continue
-			
-
-			userIndex = self.onlineUsers["ipAddress"].index(ipaddress)
-			self.onlineUsers["Username"][userIndex] = recv_data[1]
-			print(self.onlineUsers)
+		
 		# When BYE is recieved close the connection
 		connection.close()
 

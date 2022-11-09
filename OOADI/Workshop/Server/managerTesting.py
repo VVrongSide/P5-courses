@@ -40,17 +40,24 @@ class ReceiveData(threading.Thread):
 		threading.Thread.__init__(self)
 		self.ds = tcp_socket
 		self.BUFFER_SIZE = 1024
+		self.aliveCheck = ['alive', True]
 	def run(self):
 		while True:
 			recv_string = self.ds.recv(BUFFER_SIZE)
 			recv_data = pickle.loads(recv_string)
-			if type(recv_data[0]) == bool:
-				if recv_data[0]:
-					print("Success")
+			
+			if recv_data[0] != 'alive':	
+				if type(recv_data[0]) == bool:
+					if recv_data[0]:
+						print("Success")
+					else:
+						print("Failure")
 				else:
-					print("Failure")
-			else:
-				print(recv_data)
+					print(recv_data)
+				continue
+			self.ds.send(pickle.dumps(self.aliveCheck))
+			
+
 
 if __name__=="__main__":
 	SESSION = input('Insert Username: ')
