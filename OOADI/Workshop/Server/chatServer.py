@@ -215,7 +215,7 @@ class chatServer(threading.Thread):
 ############## Handles the individual connections with clients (Started as thread for single client) ##################
 	def clientHandler(self, connection, ipaddress):
 		#connection.send(str.encode('You are now connected to the replay server... Type BYE to stop'))
-		connection.settimeout(30)
+		connection.settimeout(5)
 		# Loop which keeps listening on the connection untill a BYE signal is recieved
 		while True:
 			try:
