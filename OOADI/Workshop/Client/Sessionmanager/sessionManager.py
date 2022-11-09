@@ -9,20 +9,48 @@ import string
 
 #############################################################################
 #
+<<<<<<< HEAD
+=======
+#
+#
+#############################################################################
+
+def get_random_string(length):
+    # choose from all lowercase letter
+    letters = string.ascii_lowercase
+    result_str = ''.join(random.choice(letters) for i in range(length))
+    print("Random string of length", length, "is:", result_str)
+
+
+#############################################################################
+#
+>>>>>>> main
 #                           Class
 #
 #############################################################################
 
+<<<<<<< HEAD
 class UI_Session_Manager:
     def __init__(self):
+=======
+
+class UI_Session_Manager:
+    def __init__(self, username, password, port):
+        self.username = username
+        self.password = password
+>>>>>>> main
         self.host = "127.0.0.1"
         self.port = port
         self.loggedin = False
         self.interface = iSock.interface(self.host, self.port)
 
+<<<<<<< HEAD
     def login(self, username, password):
         self.username = username
         self.password = password
+=======
+    def login(self):
+>>>>>>> main
         try:
             salt = "dinMor"
             userpassword = self.password+salt
@@ -36,11 +64,15 @@ class UI_Session_Manager:
 
     def createChannelManager(NameOfChannel):
         NameOfChannel = ChManager.UI_Channel_Manager(channelName, self.get_random_string(12))
+<<<<<<< HEAD
         return NameOfChannel
+=======
+>>>>>>> main
 
     def createP2PManager():
         return
 
+<<<<<<< HEAD
     def forwardMessage(self, message):
         try:
             sendlist = ["tid", self.username, message]
@@ -60,6 +92,20 @@ class UI_Session_Manager:
     def decrypt(key, encmessage):
         message = key.decrypt(encmessage)
         return message
+=======
+    def forwardMessage():
+        return
+    
+    def logout():
+        return
+
+    def encryptMessage(message):
+        encMessage = cryptography.fernet()
+        
+    
+    def decrypt():
+        return
+>>>>>>> main
 
     def get_random_string(length):
         # choose from all lowercase letter
@@ -67,9 +113,12 @@ class UI_Session_Manager:
         result_str = ''.join(random.choice(letters) for i in range(length))
         return result_str
 
+<<<<<<< HEAD
     def __delete__():
         print("Deleted session")
 
+=======
+>>>>>>> main
 
 
 
