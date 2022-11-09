@@ -15,16 +15,16 @@ class P2P:
         self.host = Rhost
         self.port = Rport
 
-    def send(self, key):
+    def send(self, key, token):
         self.key = key
-        self.manager()
+        self.manager(token)
 
-    def get(self):
+    def get(self, token):
         self.key = ''
-        self.manager()
+        self.manager(token)
         return self.key
 
-    def manager(self):
+    def manager(self, token):
         sa = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sa.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         logger.info("Estabishing P2P trough %s:%s", self.host, self.port)
@@ -35,7 +35,7 @@ class P2P:
         data = recv_msg(sa)
         logger.debug("client %s %s - received data: %s", priv_addr[0], priv_addr[1], data)
         pub_addr = msg_to_addr(data)
-        send_msg(sa, addr_to_msg_tok(pub_addr, "654"))
+        send_msg(sa, addr_to_msg_tok(pub_addr, token))
 
         data = recv_msg(sa)
         pubdata, privdata = data.split(b'|')
@@ -109,5 +109,5 @@ class P2P:
 
 if __name__ == '__main__':
      p2p = P2P()
-     #print(p2p.get())
-     p2p.send(b'hej')
+     print(p2p.get("☕"))
+     #p2p.send(b'hej', b'655')
