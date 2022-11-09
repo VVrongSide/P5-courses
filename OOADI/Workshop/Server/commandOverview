@@ -11,3 +11,5 @@
 ["chatLog", string(ChannelName)] - returns the entire log for the given channel
 
 ["logEntry", string(ChannelName), string(msg)] - no return
+
+["BYE"] - no return and closes connection to client on server side
