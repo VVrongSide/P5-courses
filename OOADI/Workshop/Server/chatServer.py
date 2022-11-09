@@ -8,8 +8,8 @@ import threading
 class chatServer(threading.Thread):
 	def __init__(self):
 		############ SETUP SOCKET PARAMETERS #############
-		threading.Thread.__init__(self)
-		self.HOST = "nisker.win"
+		super().__init__()
+		self.HOST = ""
 		self.PORT = 65432
 		# Counter for connections
 		self.CONN_COUNTER = 0
@@ -18,8 +18,9 @@ class chatServer(threading.Thread):
 		self.MAX_SESSIONS = 5
 		self.SESSION_LIST = []
 		self.PORT_HANDLES = []
-		self.serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		self.serverSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+		self.serverSocket = socket.socket()
+		#self.serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		#self.serverSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		self.serverSocket.bind((self.HOST, self.PORT))
 
 
@@ -149,69 +150,19 @@ class chatServer(threading.Thread):
 				return self.logEntry(datarecv[1], datarecv[2])
 
 
-	def sessionManager(self, sessionAddress, sessionSocket):
-		# Recieve datalist from userSocket
-		data_list = pickle.loads(sessionSocket.recv(self.BUFFER_SIZE))
-		# Check if number of sessions is larger than max allowed sessions
-		if len(self.SESSION_LIST)<self.MAX_SESSIONS:
-			# Set session username as second entry in the unpickled object
-			username=data_list[1]
-			# Append username to session
-			self.SESSION_LIST.append(username)
+	def clientHandler(self, connection):
+		connection.send(str.encode('You are now connected to the replay server... Type BYE to stop'))
+		while True:
+			recv_string = connection.recv(self.BUFFER_SIZE)
+			recv_data = pickle.loads(recv_string)
+			if recv_data[0] == 'BYE':
+				break
+				
+			returnVal = self.recieveData(recv_data)
+			sendData = [recv_data[0], returnVal]
+			connection.sendall(pickle.dumps(sendData))
+		connection.close()
 
-			################ TESTING PURPOSE ###################
-			print('*** Connection {} accepted. Status: active/maximum sessions: {}/{}'.format(self.CONN_COUNTER,len(self.SESSION_LIST),self.MAX_SESSIONS))
-			print('    from {}'.format(sessionAddress))
-			print('    handled in {}'.format(threading.get_ident()))
-			print('    session: {}'.format(data_list[1]))
-			#####################################################
-			# Create new port based on the session id/counter
-			NEW_PORT=self.PORT+self.CONN_COUNTER
-			print(NEW_PORT)
-			# String with accepted connection
-			connect_ok_list=["OK",NEW_PORT]
-			data_string = pickle.dumps(connect_ok_list)
-			sessionSocket.send(data_string)
-			sessionSocket.close()
-			print('    transferred to: {}'.format(NEW_PORT))
-			# Create dedicated socket to session on the new port
-			dedicatedserver = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-			dedicatedserver.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-			dedicatedserver.bind((self.HOST, NEW_PORT))
-			# Listen for data on the dedicated socket
-			dedicatedserver.listen(1)
-			userHandler, userAddress = dedicatedserver.accept()
-			self.PORT_HANDLES.append(userHandler)
-			# Start while true loop to listen for msg on the session thread
-			while True:
-				recv_string = userHandler.recv(self.BUFFER_SIZE)
-				recv_data = pickle.loads(recv_string)
-				# If message received is "EEXIT" it should remove the connection
-				if recv_data[0] == "EEXIT":
-					self.SESSION_LIST.remove(username)
-					print(self.SESSION_LIST)
-					self.PORT_HANDLES.remove(userHandler)
-					print(self.PORT_HANDLES)
-					
-					self.CONN_COUNTER-=1
-					userHandler.close()
-					print('*** Connection closed. Status: active/maximum sessions: {}/{}'.format(len(self.SESSION_LIST),self.MAX_SESSIONS))
-					print('    session: {}'.format(data_list[1]))
-					break
-				else:
-					returnVal = self.recieveData(recv_data)
-					sendData = [recv_data[0], returnVal]
-					userHandler.send(pickle.dumps(sendData))
-		else:
-			# If the connection is not successful, print the unsucessful connection
-			connect_not_ok_list=["NOT OK"]
-			data_string = pickle.dumps(connect_not_ok_list)
-			sessionSocket.send(data_string)
-			sessionSocket.close()
-			print('*** Connection {} refused. Maximum numbers of sessions reached.'.format(self.CONN_COUNTER))
-			print('    from {}'.format(sessionAddress))
-			print('    handled in {}'.format(threading.get_ident()))
-			print('    session: {}'.format(data_list[1]))
 
 	
 	################ Peer 2 Peer handling ######################
@@ -223,19 +174,22 @@ class chatServer(threading.Thread):
 	def run(self):
 		#newthread = self.p2pHandler()
 		#newthread.start()
+		# Listen for connections on the socket
+		self.serverSocket.listen(1)
 		while True:
-			# Listen for connections on the socket
-			self.serverSocket.listen(1)
 			# Saves the socket and address of the session connecting
+			print("We have thread if printed twice")
 			sessionSocket, sessionAddress = self.serverSocket.accept()
-			# Increment the number of connections
-			self.CONN_COUNTER=self.CONN_COUNTER+1
+			print(f'Connected to {sessionAddress[0]}:{sessionAddress[1]}')
 			# Create and start new thread with a sesssion
-			newthread = self.sessionManager(sessionAddress, sessionSocket)
-			newthread.start()
+			t = threading.Thread(target=self.clientHandler, args=(sessionSocket, ))
+			t.start()
+			#newthread = self.clientHandler(sessionSocket)
+			#newthread.start()
 
 
 		
 if __name__=="__main__":
 	
 	chatserver = chatServer()
+
