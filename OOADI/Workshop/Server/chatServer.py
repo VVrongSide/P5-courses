@@ -225,7 +225,7 @@ class chatServer(threading.Thread):
 					connection.recv(self.BUFFER_SIZE)
 				except socket.timeout:
 					print("I am in timeout")
-					self.userPop()
+					self.userPop(ipaddress)
 					break
 				
 				connection.settimeout(10)
