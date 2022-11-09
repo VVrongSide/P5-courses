@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter.scrolledtext import ScrolledText
 import threading
-
+import queue
 
 # Extra
 import time
@@ -77,7 +77,8 @@ class MainGUI(tk.Tk):
             #! #########################
             self.destroy()
             tab = TabGUI()
-            tab.run() 
+            tab.run()
+            tab.mainloop() 
         else:                                                           
             self.label_error.config(text="Invalied username and/or password!", fg="red")
 
@@ -95,6 +96,7 @@ class MainGUI(tk.Tk):
             self.destroy()
             tab = TabGUI()
             tab.run()
+            tab.mainloop()
 
         else:                                                        
             self.label_error.config(text="Invalied username and/or password!", fg="red")
@@ -113,11 +115,12 @@ class TabGUI(tk.Tk):
         self.title('Encrypted chat')
         self.notebook = ttk.Notebook(self)
         self.default_tab = self.add_default_tab()
+        self.queue = queue.Queue()
+        self.tabs = self.notebook.tabs
     
     def run(self):
         t1 = threading.Thread(target=self.__recieve_msg)
         t1.start()
-
 
     def add_default_tab(self):
         self.default = ttk.Frame()
@@ -165,7 +168,7 @@ class TabGUI(tk.Tk):
         #! Verify invite_code's uniqueness in database.
         #! Create encryption token and store locally.
         confirmation = False
-        if invite_code == 'hey':
+        if invite_code == 'comtek':
             confirmation = True
         #! ###################################
         if confirmation == True:
@@ -175,12 +178,22 @@ class TabGUI(tk.Tk):
             self.label_error.config(text="Something went wrong, try again!", fg="red")
 
 
-    def __create_chat_tab(self,tab_name):   
+    def __create_chat_tab(self,tab_name, tab_log=None):   
         self.frame = ttk.Frame()
         #self.notebook.add(self.frame,text=invite_code)
         # Frame 0 - Text history window
         self.text_field = ScrolledText(self.frame, state=tk.DISABLED)
         self.text_field.pack(fill=tk.BOTH)
+
+        if tab_log != None:
+            self.text_field.config(state=tk.NORMAL)
+            line_num = float(1.0)    
+            for post in tab_log:
+                post_entry = post[0]+ ' - ' + post[1]+': '+ post[2] + '\n'
+                self.text_field.insert(str(line_num),post_entry)
+                line_num = line_num + 1
+            
+
         # Frame 1 - Input text field
         self.entry_chat_msg = tk.Entry(self.frame)
         self.entry_chat_msg.pack(side=tk.LEFT, ipadx=230, ipady=20)
@@ -192,23 +205,34 @@ class TabGUI(tk.Tk):
         self.notebook.insert(0, self.frame, text=tab_name)
    
     def __recieve_msg(self):
+        
+        time.sleep(2)
+
+        for index in update:
+            print(index)
+            self.__create_chat_tab(index[0],index[1])
+        
+        time.sleep(3)
+
+        for index in update2:
+            print(index)
+            self.__create_chat_tab(index[0],index[1])
+        
+        """
         while True:
             time.sleep(5)
             print('Time is up')
             #! Need socket object
             #message = SOCKET_OBJECT.recv(BUFFER)
             #! #####################################
-            
-
-            
-            """
+        
             self.text_field.config(state=tk.NORMAL)
             line_num = float(1.0)    
             for post in chatlog_comtek:
                 post_entry = post[0]+ ' - ' + post[1]+': '+ post[2] + '\n'
                 self.text_field.insert(str(line_num),post_entry)
                 line_num = line_num + 1
-            """
+       """
 
     def __send_button(self, msg):
         #! Encrypt the message.
@@ -227,6 +251,7 @@ class TabGUI(tk.Tk):
             message = self.CT_msg
             SOCKET_OBJECT.send(message)
             break
+    
 
 """
 ############################################################################################
@@ -237,17 +262,15 @@ class TabGUI(tk.Tk):
 
 if __name__=="__main__":
 
-    update = [['comtek',[['25-08-22 14:20','Faur','Hvem ved hvad klokken er ??'],['25-08-22 14:23','Pure Genie','14:27 why ??'],['25-08-22 14:24','Wrongside','Mads?'],['25-08-22 14:26','SnooGiraffe','Bajer!!!!']]], ['Secret',['07-11-2022', 'Anonymous', 'Its a secret!! Dont tell..']]]
+  
+    C = ['Secret',[['07-11-2022 16:59', 'Anonymous', 'Its a secret!! Dont tell..']]]
+    A = ['comtek2022',[['25-08-22 14:20','Faur','Hvem ved hvad klokken er ??'],['25-08-22 14:23','Pure Genie','14:27 why ??'],['25-08-22 14:24','Wrongside','Mads?'],['25-08-22 14:26','SnooGiraffe','Bajer!!!!']]]
+    update = [C,A]
+
+    B = ['Secret',[['07-11-2022 16:59', 'Anonymous', 'Its a secret!! Dont tell..'],['07-11-2022 17:00', 'CIA', 'Dont mind, I already KNOW!! ;)']]]
+    update2 = [B,A]
 
     
-
-    chat_name = 'comtek2020'
-    chatlog_comtek = [['25-08-22 14:20','Faur','Hvem ved hvad klokken er ??'],['25-08-22 14:23','Pure Genie','14:27 why ??'],['25-08-22 14:24','Wrongside','Mads?'],['25-08-22 14:26','SnooGiraffe','Bajer!!!!']]
-
-    def main():
-        main = MainGUI()
-        main.setup()
-
-
-    t = threading.Thread(target=main)
-    t.start()
+    main = MainGUI()
+    main.setup()
+    main.mainloop()
