@@ -1,3 +1,4 @@
+from time import sleep
 from DataBase.accountDB import account_DB
 from DataBase.channelDB import Channel_DB
 import pickle
@@ -250,7 +251,12 @@ class chatServer(threading.Thread):
 			for addr in self.onlineUsers["ipAddress"]:
 				self.connIndex = self.onlineUsers["ipAddress"].index(addr)
 				if self.onlineUsers["Connection"][self.connIndex][1] == 1:
-					self.onlineUsers["Connection"][self.connIndex][0].send(pickle.dumps(self.aliveCheck))
+					try:
+						self.onlineUsers["Connection"][self.connIndex][0].send(pickle.dumps(self.aliveCheck))
+						self.onlineUsers["Connection"][self.connIndex][1] = 0
+					except socket.timeout:
+						self.onlineUsers["Connection"][self.connIndex][1] = 0
+				sleep(1)
 
 
 
