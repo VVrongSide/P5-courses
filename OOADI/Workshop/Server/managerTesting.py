@@ -49,6 +49,7 @@ class ReceiveData(threading.Thread):
 				recv_data = pickle.loads(recv_string)
 				if recv_data[0] == 'alive':
 					self.ds.send(pickle.dumps(self.aliveRespond))
+					continue
 			except:
 				continue
 			print(recv_data)

@@ -21,9 +21,9 @@ class chatServer(threading.Thread):
 
 		self.onlineUsers = {
 			"ipAddress" : [],
-			"Username" : [],
-			"Connection" : []
+			"Username" : []
 			}
+		self.connections = []		
 
 		self.aliveCheck = ['alive']
 
@@ -51,8 +51,9 @@ class chatServer(threading.Thread):
 		userIndex = self.onlineUsers["ipAddress"].index(ipaddress)
 		self.onlineUsers["ipAddress"].pop(userIndex)
 		self.onlineUsers["Username"].pop(userIndex)
-		self.onlineUsers["Connection"].pop(userIndex)
+		self.connections.pop(userIndex)
 		print(self.onlineUsers)
+		print(f'Open conncetions: {len(self.connections)}')
 
 
 #######################################	
@@ -224,16 +225,21 @@ class chatServer(threading.Thread):
 				if not recv_string:
 					break
 				recv_data = pickle.loads(recv_string)
+				clientIndex = self.onlineUsers["ipAddress"].index(ipaddress)
 			except:
-				if self.onlineUsers["Connection"][index][1] == 0:
+				# If alivecheck has been sent and nothing was received (timeout) break loop and close connection
+				clientIndex = self.onlineUsers["ipAddress"].index(ipaddress)
+				if self.connections[clientIndex][1] == 0:
 					break
 				continue
+
+			# If the alivecheck has been sent and a alive was received, tell this to shared variable.
 			if recv_data[0] == 'alive':
-				self.onlineUsers["Connection"][index][1] = 1
+				self.connections[clientIndex][1] = 1
 				continue
 
 			
-			
+			# If bye signal was sent from client, break loop and close connection
 			if recv_data[0] == 'BYE':
 				break
 
@@ -250,14 +256,22 @@ class chatServer(threading.Thread):
 ###################### CHECK CONNECTION STATUS ############################
 	def aliveChecker(self):
 		while True:
+			# Iterate through the know ipAddresses
 			for addr in self.onlineUsers["ipAddress"]:
-				self.connIndex = self.onlineUsers["ipAddress"].index(addr)
-				if self.onlineUsers["Connection"][self.connIndex][1] == 1:
+				# Get index of ipAddress
+				connIndex = self.onlineUsers["ipAddress"].index(addr)
+
+				# Check the alive status of the connection
+				if self.connections[connIndex][1] == 1:
+
 					try:
-						self.onlineUsers["Connection"][self.connIndex][0].send(pickle.dumps(self.aliveCheck))
-						self.onlineUsers["Connection"][self.connIndex][1] = 0
+						# Send alive ping
+						self.connections[connIndex][0].send(pickle.dumps(self.aliveCheck))
+						# Set alive status to 0 to indicate an alivecheck has been sent
+						self.connections[connIndex][1] = 0
 					except socket.timeout:
-						self.onlineUsers["Connection"][self.connIndex][1] = 0
+						# Set alive status to 0 in case of timeout, since this means no connection to user
+						self.connections[connIndex][1] = 0
 				sleep(1)
 
 
@@ -283,11 +297,10 @@ class chatServer(threading.Thread):
 			print(f'Connection from: ({sessionAddress[0]}:{sessionAddress[1]})')
 			self.onlineUsers["ipAddress"].append(sessionAddress)
 			self.onlineUsers["Username"].append(None)
-			self.onlineUsers["Connection"].append([sessionSocket,1])
-			self.index = self.onlineUsers["ipAddress"].index(sessionAddress)
-			
+			self.connections.append([sessionSocket,1])
+			print(f'Open connections: {len(self.connections)}')
 			# Create and start new thread which handles the new connection
-			t = threading.Thread(target=self.clientHandler, args=(sessionSocket, sessionAddress, self.index, ))
+			t = threading.Thread(target=self.clientHandler, args=(sessionSocket, sessionAddress, ))
 			t.start()
 		
 		
