@@ -19,12 +19,14 @@ class chatServer(threading.Thread):
 		self.serverSocket = socket.socket()
 		self.serverSocket.bind(("", self.PORT))
 
+		# Create dictionary and list with online user information
 		self.onlineUsers = {
 			"ipAddress" : [],
 			"Username" : []
 			}
 		self.connections = []		
 
+		# Define the default alive Check message
 		self.aliveCheck = ['alive']
 
 
@@ -91,7 +93,7 @@ class chatServer(threading.Thread):
 		
 	
 	########### associate a channel with a user in the accountDB ###########
-	def addChannel(self, Username, Channel_name):
+	"""def addChannel(self, Username, Channel_name):
 		# Load the pickled acconut object
 		with open(self.accountDB_fn, "rb" ) as pickle_file:
 			accountDB = pickle.load(pickle_file)
@@ -102,7 +104,7 @@ class chatServer(threading.Thread):
 		# Write the modified accountDB object to a pickled file
 		with open(self.accountDB_fn, "wb") as pickle_file:
 			pickle.dump(accountDB, pickle_file)
-	
+	"""
 #######################################	
 ######### CHANNEL DB HANDLING #########
 #######################################
@@ -122,8 +124,7 @@ class chatServer(threading.Thread):
 			# Write the changed object to pickled file
 			with open(self.ChannelDB_fn, "wb" ) as pickle_file:
 				pickle.dump(ChannelDB, pickle_file)
-			# Start association of User for the channel
-			self.associateUser(Account, Channel_name)
+			
 
 		# If unsuccesful will return false
 		return ret
