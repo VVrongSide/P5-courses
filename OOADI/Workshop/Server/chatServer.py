@@ -135,13 +135,11 @@ class chatServer(threading.Thread):
 
 		ret = ChannelDB.associateUser(Channel_name,Account)
 
-		# If associate user was succesful proceed to pickle the modified ChannelDB object and then initiate the addChannel on the accountDB	
+		# If associate user was succesful proceed to pickle the modified ChannelDB object
 		if ret:
 			with open(self.ChannelDB_fn, "wb" ) as pickle_file:
 				pickle.dump(ChannelDB, pickle_file)
-			# Start the association of the channel for the user
-			self.addChannel(Account, Channel_name)
-	
+		
 		return ret
 
 
