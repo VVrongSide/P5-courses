@@ -51,6 +51,7 @@ class chatServer(threading.Thread):
 		userIndex = self.onlineUsers["ipAddress"].index(ipaddress)
 		self.onlineUsers["ipAddress"].pop(userIndex)
 		self.onlineUsers["Username"].pop(userIndex)
+		self.onlineUsers["Connection"].pop(userIndex)
 		print(self.onlineUsers)
 
 
@@ -227,8 +228,9 @@ class chatServer(threading.Thread):
 				if self.onlineUsers["Connection"][index][1] == 0:
 					break
 				continue
-			if recv_data[0] == 'ALIVE':
+			if recv_data[0] == 'alive':
 				self.onlineUsers["Connection"][index][1] = 1
+				continue
 
 			
 			

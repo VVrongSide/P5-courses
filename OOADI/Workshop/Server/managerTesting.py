@@ -15,6 +15,7 @@ class SendData(threading.Thread):
 		self.u=user
 		self.BUFFER_SIZE = 1024
 
+
 	def run(self):
 		while True:
 			send_data = input('What to Do?: ')
@@ -40,7 +41,7 @@ class ReceiveData(threading.Thread):
 		threading.Thread.__init__(self)
 		self.ds = tcp_socket
 		self.BUFFER_SIZE = 1024
-		self.aliveRespond ['alive']
+		self.aliveRespond = ['alive']
 	def run(self):
 		while True:
 			try:
