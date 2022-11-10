@@ -246,12 +246,11 @@ class chatServer(threading.Thread):
 
 ###################### CHECK CONNECTION STATUS ############################
 	def aliveChecker(self):
-		self.pickledalivecheck = pickle.dumps(self.aliveCheck)
 		while True:
 			for addr in self.onlineUsers["ipAddress"]:
 				self.connIndex = self.onlineUsers["ipAddress"].index(addr)
 				if self.onlineUsers["Connection"][self.connIndex][1] == 1:
-					self.onlineUsers["Connection"][self.connIndex][0].send(self.pickledalivecheck)
+					self.onlineUsers["Connection"][self.connIndex][0].send(pickle.dumps(self.aliveCheck))
 
 
 
