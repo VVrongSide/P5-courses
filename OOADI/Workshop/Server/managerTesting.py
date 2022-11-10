@@ -40,14 +40,16 @@ class ReceiveData(threading.Thread):
 		threading.Thread.__init__(self)
 		self.ds = tcp_socket
 		self.BUFFER_SIZE = 1024
+		self.aliveRespond = pickle.dumps(['alive'])
 	def run(self):
 		while True:
 			recv_string = self.ds.recv(BUFFER_SIZE)
 			recv_data = pickle.loads(recv_string)
-			
+			if recv_data[0] == 'alive':
+				self.ds.send(self.aliveRespond)
 
 			print(recv_data)
-			
+
 
 
 

@@ -21,6 +21,7 @@ class chatServer(threading.Thread):
 		self.onlineUsers = {
 			"ipAddress" : [],
 			"Username" : [],
+			"Connection" : []
 			}
 
 		self.aliveCheck = ['alive']
@@ -211,24 +212,25 @@ class chatServer(threading.Thread):
 
 
 ############## Handles the individual connections with clients (Started as thread for single client) ##################
-	def clientHandler(self, connection, ipaddress):
+	def clientHandler(self, connection, ipaddress, index):
 		#connection.send(str.encode('You are now connected to the replay server... Type BYE to stop'))
 		connection.settimeout(10)
 		# Loop which keeps listening on the connection untill a BYE signal is recieved
 		while True:
-			try:
-				connection.send(pickle.dumps(self.aliveCheck))
-			except:
-				break
-
 			try:
 				recv_string = connection.recv(self.BUFFER_SIZE)
 				if not recv_string:
 					break
 				recv_data = pickle.loads(recv_string)
 			except:
+				if self.onlineUsers["Connection"][index][1] == 0:
+					break
 				continue
+			if recv_data[0] == 'ALIVE':
+				self.onlineUsers["Connection"][index][1] = 1
 
+			
+			
 			if recv_data[0] == 'BYE':
 				break
 
@@ -242,7 +244,21 @@ class chatServer(threading.Thread):
 		connection.close()
 
 
-	
+###################### CHECK CONNECTION STATUS ############################
+	def aliveChecker(self):
+		self.pickledalivecheck = pickle.dump(self.aliveCheck)
+		while True:
+			for addr in self.onlineUsers["ipAddress"]:
+				self.connIndex = self.onlineUsers["ipAddress"].index(addr)
+				if self.onlineUsers["Connection"][self.connIndex][1] == 1:
+					self.onlineUsers["Connection"][self.connIndex][0].send(self.pickledalivecheck)
+
+
+
+				
+
+
+
 	################ Peer 2 Peer handling ######################
 	#def p2pHandler(self):
 
@@ -252,16 +268,21 @@ class chatServer(threading.Thread):
 	def run(self):
 		# Listen for connections on the socket
 		self.serverSocket.listen(1)
+		t = threading.Thread(target=self.aliveChecker)
+		t.start()
 		while True:
 			# Accept new connections to the server
 			sessionSocket, sessionAddress = self.serverSocket.accept()
 			print(f'Connection from: ({sessionAddress[0]}:{sessionAddress[1]})')
 			self.onlineUsers["ipAddress"].append(sessionAddress)
 			self.onlineUsers["Username"].append(None)
+			self.onlineUsers["Connection"].append([sessionSocket,1])
+			self.index = self.onlineUsers["ipAddress"].index(sessionAddress)
 			
 			# Create and start new thread which handles the new connection
-			t = threading.Thread(target=self.clientHandler, args=(sessionSocket, sessionAddress, ))
+			t = threading.Thread(target=self.clientHandler, args=(sessionSocket, sessionAddress, self.index, ))
 			t.start()
+		
 		
 if __name__=="__main__":
 	# Initiate the class
