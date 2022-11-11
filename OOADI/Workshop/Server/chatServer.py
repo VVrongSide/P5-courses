@@ -299,7 +299,7 @@ class chatServer(threading.Thread):
 
 					# Connect to member already in channel
 					index = self.onlineUsers["Username"].index(i)
-					conn = self.connections[0][index]
+					conn = self.connections[index][0]
 					senddata = ["p2pRequest",priv_addr, pub_addr, False]
 					conn.send(pickle.dumps(senddata))
 					
