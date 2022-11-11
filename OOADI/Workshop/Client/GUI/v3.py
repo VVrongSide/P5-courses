@@ -16,11 +16,22 @@ class TabGUI(Tk):
         self.title('Encrypted chat')
         self.notebook = ttk.Notebook(self)
         self.default_tab = self.add_default_tab()
-        self.channel_names = []
+        self.channel_names = ['comtek2022','Secret']
+        self.tab_names = {}
     
     def run(self):
+        if len(self.channel_names) != 0:
+            for name in self.channel_names:
+                chat = Channel(self, name)
+                chat.create_chat_tab()
+                tab_names = [self.notebook.tab(i, option="text") for i in self.notebook.tabs()]
+                self.tab_names[tab_names[0]] = chat
+                 
+        time.sleep(2)
         t1 = threading.Thread(target=self.__recieve_msg)
         t1.start()
+        print(self.tab_names)
+        
 
     def add_default_tab(self):
         self.default = ttk.Frame()
@@ -98,69 +109,28 @@ class TabGUI(Tk):
     def __recieve_msg(self):
 
 
-        time.sleep(1)
-
-        tabs = self.notebook.tabs()
-        print(tabs)
-
-        time.sleep(1)
+        time.sleep(2)
 
         for index in update:
-            if index[0] in self.channel_names:
-                print(456789)
-            
-            else:
-                tab = Channel(self, index[0], index[1])
-                tab.create_chat_tab()
-                tab.update_channel()        
+            if index[0] in self.tab_names.keys():
+                tab_object = self.tab_names.get(index[0])
+                tab_object.update_channel(index[1])
 
-        tabs = self.notebook.tabs()
-        print(tabs)
-        print("len",len(tabs))
-        print(type(tabs))
+        time.sleep(2)
 
-        tab = tabs[0]
-        print("\n",tab)
-        print(len(tab))
-        print(type(tab))
-
-        tab = tabs[1]
-        print("\n",tab)
-        print(len(tab))
-        print(type(tab))
-        
-
-        time.sleep(1)
-        
         for index in update2:
-            tab = Channel(self, index[0], index[1])
-            tab.create_chat_tab()
-            tab.update_channel()  
-        
-        tabs = self.notebook.tabs()
-        print(tabs)
-        print("len",len(tabs))
-        print(type(tabs))
+            if index[0] in self.tab_names.keys():
+                tab_object = self.tab_names.get(index[0])
+                tab_object.update_channel(index[1])
 
-        tab = tabs[0]
-        print("\n",tab)
-        print(len(tab))
-        print(type(tab))
-
-        tab = tabs[1]
-        print("\n",tab)
-        print(len(tab))
-        print(type(tab))
-        
-        
 
 
 class Channel(Frame):
-    def __init__(self, parent, name, log):
+    def __init__(self, parent, name):
         Frame.__init__(self)
         self.parent = parent
         self.name = name
-        self.log = log
+        #self.log = log
 
     def create_chat_tab(self):   
         self.frame = ttk.Frame()
@@ -177,39 +147,15 @@ class Channel(Frame):
         self.frame.pack()
         self.parent.notebook.insert(0, self.frame, text=self.name)
 
-    def update_channel(self):
+    def update_channel(self, channel_log):
         self.text_field.config(state=NORMAL)
+        self.text_field.delete('0.0', END)
         line_num = float(1.0)    
-        for post in self.log:
+        for post in channel_log:
             post_entry = post[0]+ ' - ' + post[1]+': '+ post[2] + '\n'
             self.text_field.insert(str(line_num),post_entry)
             line_num = line_num + 1
         
-        
-        """
-        while True:
-            time.sleep(5)
-            print('Time is up')
-            #! Need socket object
-            #message = SOCKET_OBJECT.recv(BUFFER)
-            #! #####################################
-        
-            self.text_field.config(state=tk.NORMAL)
-            line_num = float(1.0)    
-            for post in chatlog_comtek:
-                post_entry = post[0]+ ' - ' + post[1]+': '+ post[2] + '\n'
-                self.text_field.insert(str(line_num),post_entry)
-                line_num = line_num + 1
-       """
-
-
-    
-
-"""
-############################################################################################
-############################################################################################
-"""
-
 
 
 if __name__=="__main__":
