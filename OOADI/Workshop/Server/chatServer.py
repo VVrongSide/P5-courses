@@ -245,6 +245,7 @@ class chatServer(threading.Thread):
 			if recv_data[0] == 'p2p':
 				tp = threading.Thread(target=self.p2pHandler, args=(recv_data[1], self.onlineUsers["Username"][clientIndex], recv_data[2], self.onlineUsers["ipAddress"][clientIndex], ))
 				tp.start()
+				sleep(2)
 				continue
 
 			
@@ -303,7 +304,7 @@ class chatServer(threading.Thread):
 					self.connections[index][0].send(pickle.dumps(senddata))
 					
 					# Get info from already connected user
-					recvdata = self.connections[index].recv(self.BUFFER_SIZE)
+					recvdata = self.connections[index][0].recv(self.BUFFER_SIZE)
 					recv_list = pickle.loads(recvdata)
 					priv_addr = recv_list[0]
 					pub_addr = self.onlineUsers["ipAddress"][index]
