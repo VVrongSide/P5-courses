@@ -2,7 +2,8 @@ class account_DB(object):
 	def __init__(self):
 		self.accDB = {
 			"Username" : [],
-			"Password" : []
+			"Password" : [],
+			"Associated Channels" : []
 			}
 	
 
@@ -20,6 +21,7 @@ class account_DB(object):
 		else:
 			self.accDB["Username"].append(Username)
 			self.accDB["Password"].append(Password)
+			self.accDB["Associated Channels"].append([])
 			print(f'User {Username} was succesfully created')
 			return True
 	
@@ -33,3 +35,12 @@ class account_DB(object):
 
 		print(f'Failed login attempt for user {Username}')
 		return False
+
+	def addChannel(self, Username, ChannelID):
+		self.index = self.accDB["Username"].index(Username)
+		if ChannelID in self.accDB["Associated Channels"][self.index]:
+			print("Channel already exists in account database")
+			return
+		self.accDB["Associated Channels"][self.index].append(ChannelID)
+		print(f'{Username} succesfully associated with channel: {ChannelID}')
+		return

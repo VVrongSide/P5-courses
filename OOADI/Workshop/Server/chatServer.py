@@ -93,7 +93,7 @@ class chatServer(threading.Thread):
 		
 	
 	########### associate a channel with a user in the accountDB ###########
-	"""def addChannel(self, Username, Channel_name):
+	def addChannel(self, Username, Channel_name):
 		# Load the pickled acconut object
 		with open(self.accountDB_fn, "rb" ) as pickle_file:
 			accountDB = pickle.load(pickle_file)
@@ -104,7 +104,7 @@ class chatServer(threading.Thread):
 		# Write the modified accountDB object to a pickled file
 		with open(self.accountDB_fn, "wb") as pickle_file:
 			pickle.dump(accountDB, pickle_file)
-	"""
+	
 #######################################	
 ######### CHANNEL DB HANDLING #########
 #######################################
@@ -124,6 +124,7 @@ class chatServer(threading.Thread):
 			# Write the changed object to pickled file
 			with open(self.ChannelDB_fn, "wb" ) as pickle_file:
 				pickle.dump(ChannelDB, pickle_file)
+			self.addChannel(Account, Channel_name)
 			
 
 		# If unsuccesful will return false
@@ -144,6 +145,8 @@ class chatServer(threading.Thread):
 		if ret:
 			with open(self.ChannelDB_fn, "wb" ) as pickle_file:
 				pickle.dump(ChannelDB, pickle_file)
+			self.addChannel(Account, Channel_name)
+
 		
 		return ret
 
@@ -282,7 +285,13 @@ class chatServer(threading.Thread):
 
 
 	################ Peer 2 Peer handling ######################
-	#def p2pHandler(self):
+	"""
+	def p2pHandler(self, Channel_name, Username):
+		members = self.getMembers(Channel_name)
+		for i in members:
+			if i != Username:
+				if i in self.onlineUsers[1]:
+					"""
 
 
 
