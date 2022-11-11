@@ -299,21 +299,19 @@ class chatServer(threading.Thread):
 
 					# Connect to member already in channel
 					index = self.onlineUsers["Username"].index(i)
-					conn = self.connections[index][0]
 					senddata = ["p2pRequest",priv_addr, pub_addr, False]
-					conn.send(pickle.dumps(senddata))
+					self.connections[index][0].send(pickle.dumps(senddata))
 					
 					# Get info from already connected user
-					recvdata = conn.recv(self.BUFFER_SIZE)
+					recvdata = self.connections[index].recv(self.BUFFER_SIZE)
 					recv_list = pickle.loads(recvdata)
 					priv_addr = recv_list[0]
 					pub_addr = self.onlineUsers["ipAddress"][index]
 
 					# Send info to user who wants to join
 					index = self.onlineUsers["Username"].index(Username)
-					conn = self.connections[0][index]
 					senddata = ["p2pAddr", priv_addr, pub_addr, True]
-					conn.send(pickle.dumps(senddata))
+					self.connections[index][0].send(pickle.dumps(senddata))
 
 
 
