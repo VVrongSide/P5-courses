@@ -242,6 +242,11 @@ class chatServer(threading.Thread):
 				self.connections[clientIndex][1] = 1
 				continue
 
+			if recv_data[0] == 'p2p':
+				tp = threading.Thread(target=self.p2pHandler, args=(recv_data[1], self.onlineUsers["Username"][clientIndex], recv_data[2], self.onlineUsers["ipAddress"][clientIndex], ))
+				tp.start()
+				continue
+
 			
 			# If bye signal was sent from client, break loop and close connection
 			if recv_data[0] == 'BYE':
@@ -285,13 +290,34 @@ class chatServer(threading.Thread):
 
 
 	################ Peer 2 Peer handling ######################
-	"""
-	def p2pHandler(self, Channel_name, Username):
+	
+	def p2pHandler(self, Channel_name, Username, priv_addr, pub_addr):
 		members = self.getMembers(Channel_name)
 		for i in members:
 			if i != Username:
-				if i in self.onlineUsers[1]:
-					"""
+				if i in self.onlineUsers["Username"]:
+
+					# Connect to member already in channel
+					index = self.onlineUsers["Username"].index(i)
+					conn = self.connections[0][index]
+					senddata = ["p2pRequest",priv_addr, pub_addr, False]
+					conn.send(pickle.dumps(senddata))
+					
+					# Get info from already connected user
+					recvdata = conn.recv(self.BUFFER_SIZE)
+					recv_list = pickle.loads(recvdata)
+					priv_addr = recv_list[0]
+					pub_addr = self.onlineUsers["ipAddress"][index]
+
+					# Send info to user who wants to join
+					index = self.onlineUsers["Username"].index(Username)
+					conn = self.connections[0][index]
+					senddata = ["p2pAddr", priv_addr, pub_addr, True]
+					conn.send(pickle.dumps(senddata))
+
+
+
+					
 
 
 
