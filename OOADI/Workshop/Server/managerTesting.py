@@ -65,6 +65,8 @@ class ReceiveData(threading.Thread):
 					target_priv = recv_data[1]
 					target_pub = recv_data[2]
 					self.p2pSock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+					self.p2pSock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+					self.p2pSock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
 					self.p2pSock.connect(("nisker.win", 65433))
 					self.p2pConnected = False
 					local_addr = self.p2pSock.getsockname()
@@ -77,6 +79,8 @@ class ReceiveData(threading.Thread):
 				
 				if recv_data[0] == 'p2pAddr':
 					self.p2pSock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+					self.p2pSock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+					self.p2pSock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
 					self.p2pSock.connect(("nisker.win", 65433))
 					self.p2pConnected = False
 					thread1 = threading.Thread(target=self.ReceiveKey)
@@ -112,14 +116,14 @@ class ReceiveData(threading.Thread):
 		s1.settimeout(2)
 		s1.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		s1.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
-
-		print(s1)
+		s1.bind(local_addr)
+		
+		#print(s1)
 		print(f'connect from {local_addr} to {addr}')
 		while not self.p2pConnected:
-
+			#print("I am in while loop")
 			try:
-				connection, connectionAddr = s1.accept()
-				
+				s1.connect(addr)
 				print(s1)
 			except:
 				#print("broken stuff", addr)
@@ -129,9 +133,9 @@ class ReceiveData(threading.Thread):
 			print("Trying to get key")
 			while True:
 				try:
-					key = connection.recv(BUFFER_SIZE)
+					key = s1.recv(BUFFER_SIZE)
 					print("I got the key!",pickle.loads(key))
-					connection.send(pickle.dumps('Succesfully received'))
+					s1.send(pickle.dumps('Succesfully received'))
 					self.p2pConnected = True
 					break
 				except:
@@ -148,7 +152,8 @@ class ReceiveData(threading.Thread):
 		s1.settimeout(2)
 		s1.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		s1.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
-	
+		s1.bind(local_addr)
+
 		print(s1)
 		print(f'connect from {local_addr} to {addr}')
 		while not self.p2pConnected:
