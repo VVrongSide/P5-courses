@@ -9,48 +9,31 @@ import string
 
 #############################################################################
 #
-<<<<<<< HEAD
-=======
-#
-#
-#############################################################################
-
-def get_random_string(length):
-    # choose from all lowercase letter
-    letters = string.ascii_lowercase
-    result_str = ''.join(random.choice(letters) for i in range(length))
-    print("Random string of length", length, "is:", result_str)
-
-
-#############################################################################
-#
->>>>>>> main
 #                           Class
 #
 #############################################################################
 
-<<<<<<< HEAD
 class UI_Session_Manager:
     def __init__(self):
-=======
+        self.loggedin = False
+        self.interface = iSock.interface()
 
-class UI_Session_Manager:
-    def __init__(self, username, password, port):
+    def createUser(self, username, password):
         self.username = username
         self.password = password
->>>>>>> main
-        self.host = "127.0.0.1"
-        self.port = port
-        self.loggedin = False
-        self.interface = iSock.interface(self.host, self.port)
+        try:
+            salt = "dinMor"
+            userpassword = self.password+salt
+            hashed = hashlib.md5(userpassword.encode()).hexdigest()
+            sendlist = ["createUser",self.username,hashed]
+            logindata = pickle.dumps(sendlist,pickle.HIGHEST_PROTOCOL)
+            self.interface.send(logindata)
+        except:
+            return False
 
-<<<<<<< HEAD
     def login(self, username, password):
         self.username = username
         self.password = password
-=======
-    def login(self):
->>>>>>> main
         try:
             salt = "dinMor"
             userpassword = self.password+salt
@@ -58,26 +41,35 @@ class UI_Session_Manager:
             sendlist = ["login",self.username,hashed]
             logindata = pickle.dumps(sendlist,pickle.HIGHEST_PROTOCOL)
             self.interface.send(logindata)
-            return True
         except:
             return False
 
-    def createChannelManager(NameOfChannel):
-        NameOfChannel = ChManager.UI_Channel_Manager(channelName, self.get_random_string(12))
-<<<<<<< HEAD
-        return NameOfChannel
-=======
->>>>>>> main
+    def createChannel(self, NameOfChannel, channelPass):
+        NameOfChannel = ChManager.UI_Channel_Manager(str(NameOfChannel), self.get_random_string(12))
+        sendList = ["createChannel", NameOfChannel]
+        sendList = pickle.dumps(sendList)
+        self.interface.send(sendList)
+
+    def joinChannel(self, NameOfChannel):
+        try:
+            sendList = ["joinChannel", NameOfChannel]
+            sendList = pickle.dumps(sendList,pickle.HIGHEST_PROTOCOL)
+            res = self.interface.send(sendList)
+            if (res == True):
+                return True
+            else:
+                return False
+        except:
+            return False
 
     def createP2PManager():
         return
 
-<<<<<<< HEAD
-    def forwardMessage(self, message):
+    def forwardMessage(self, message, channel):
         try:
-            sendlist = ["tid", self.username, message]
+            sendlist = ["logEntry", channel, message]
             sendlist = pickle.dumps(sendlist,pickle.HIGHEST_PROTOCOL)
-            self.interface.send(sendlist)
+            check = self.interface.send(sendlist)
             return True
         except:
             return False
@@ -92,20 +84,6 @@ class UI_Session_Manager:
     def decrypt(key, encmessage):
         message = key.decrypt(encmessage)
         return message
-=======
-    def forwardMessage():
-        return
-    
-    def logout():
-        return
-
-    def encryptMessage(message):
-        encMessage = cryptography.fernet()
-        
-    
-    def decrypt():
-        return
->>>>>>> main
 
     def get_random_string(length):
         # choose from all lowercase letter
@@ -113,12 +91,31 @@ class UI_Session_Manager:
         result_str = ''.join(random.choice(letters) for i in range(length))
         return result_str
 
-<<<<<<< HEAD
     def __delete__():
         print("Deleted session")
 
-=======
->>>>>>> main
+    def receiveMessage(self):
+        res = self.interface.listen()
+        match res[0]:
+            case 'login':
+                return True
+            case 'createUser':
+                return True
+            case 'joinChannel':
+                return
+            case 'createChannel':
+                return
+            case 'lastChat':
+                return
+            case 'chatLog':
+                return
+            case 'logEntry':
+                return
+            
+
+        
+
+
 
 
 
@@ -149,8 +146,10 @@ class connectionSocket:
 #############################################################################
 
 if __name__ == "__main__":
-    client = UI_Session_Manager("Hejdu", "1234567", 2000)
-    client.login()
+    client = UI_Session_Manager()
+    client.login("mads", "dinmor")
+    client.receiveMessage()
+
 
 
 
