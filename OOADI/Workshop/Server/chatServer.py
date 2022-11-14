@@ -327,6 +327,9 @@ class chatServer(threading.Thread):
 					sendData = [priv_addr, pub_addr]
 					p2pClient[0][0].send(pickle.dumps(sendData))
 		
+		p2pClient[0].close()
+		p2pClient[1].close()
+		
 
 
 
