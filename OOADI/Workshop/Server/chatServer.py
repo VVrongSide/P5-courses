@@ -18,12 +18,12 @@ class chatServer(threading.Thread):
 
 		# Bind the socket without specifying host address to work with all host addresses
 		self.serverSocket = socket.socket()
-		self.serverSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR)
+		self.serverSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		self.serverSocket.bind(("", self.PORT))
 
 		# Bind p2p Socket
 		self.p2pSocket = socket.socket()
-		self.p2pSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR)
+		self.p2pSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		self.p2pSocket.bind(("",self.p2pPort))
 
 		# Create dictionary and list with online user information
