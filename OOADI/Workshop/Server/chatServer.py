@@ -313,6 +313,7 @@ class chatServer(threading.Thread):
 					# Connect to member already in channel
 					senddata = ["p2pRequest", p2pClient[0][1], p2pClient[0][2]]
 					self.connections[i][0].send(pickle.dumps(senddata))
+					print(self.connections[i])
 					
 					# Get info from already connected user
 					p2pSocket2, p2pAddress2 = self.p2pSocket.accept()
