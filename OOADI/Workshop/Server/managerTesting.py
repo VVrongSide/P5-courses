@@ -133,9 +133,10 @@ class ReceiveData(threading.Thread):
 
 		if thisAddr:	
 			print(f'connected from {local_addr} to {addr} success!')
+			
 			while True:
 				try:
-					print("Trying to get key")
+					#print("Trying to get key")
 					key = s1.recv(BUFFER_SIZE)
 					print("I got the key!: ",pickle.loads(key))
 					s1.send(pickle.dumps('Succesfully received'))
