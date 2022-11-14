@@ -303,6 +303,7 @@ class chatServer(threading.Thread):
 
 		recv_data = p2pSocket1.recv(self.BUFFER_SIZE)
 		p2pClient[0].append(pickle.loads(recv_data))
+		print(p2pClient)
 
 
 		for i, member in enumerate(members):
