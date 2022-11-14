@@ -325,7 +325,9 @@ class chatServer(threading.Thread):
 					p2pClient[0][0].send(pickle.dumps(sendData))
 		
 		p2pSocket1.close()
+		print("Closing socket 1")
 		p2pSocket2.close()
+		print("Closing socket 2")
 
 
 
