@@ -118,19 +118,20 @@ class ReceiveData(threading.Thread):
 		while not self.p2pConnected:
 
 			try:
-				s1.connect(addr)
+				connection, connectionAddr = s1.accept()
+				
 				print(s1)
 			except:
 				#print("broken stuff", addr)
 				continue
 			
-			print("connected from %s to %s success!", local_addr, addr)
+			print(f'connected from {local_addr} to {addr} success!')
 			print("Trying to get key")
 			while True:
 				try:
-					key = s1.recv(BUFFER_SIZE)
+					key = connection.recv(BUFFER_SIZE)
 					print("I got the key!",pickle.loads(key))
-					s1.send(pickle.dumps('Succesfully received'))
+					connection.send(pickle.dumps('Succesfully received'))
 					self.p2pConnected = True
 					break
 				except:
@@ -147,29 +148,29 @@ class ReceiveData(threading.Thread):
 		s1.settimeout(2)
 		s1.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		s1.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
-
+	
 		print(s1)
 		print(f'connect from {local_addr} to {addr}')
 		while not self.p2pConnected:
 			
 			try:
-				connection, connectionAddr = s1.accept()
+				s1.connect(addr)
 				print("I am here")
 				print(s1)
 			except:
 				#print("broken stuff", addr)
 				continue
 			
-			print("connected from %s to %s success!", local_addr, addr)
+			print(f'connected from {local_addr} to {addr} success!')
 			
 
 			key = "TestKey"
 			print("Sending key:", key)
 			while True:
 				try:
-					connection.send(pickle.dumps(key))
+					s1.send(pickle.dumps(key))
 					print("I sent")
-					recvdata = connection.recv(BUFFER_SIZE)
+					recvdata = s1.recv(BUFFER_SIZE)
 					print(pickle.loads(recvdata))
 					break
 				except:
