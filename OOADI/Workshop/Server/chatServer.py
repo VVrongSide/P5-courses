@@ -305,7 +305,7 @@ class chatServer(threading.Thread):
 		p2pClient[0].append(pickle.loads(recv_data))
 
 
-		for i,member in enumerate(members):
+		for i, member in enumerate(members):
 			if member != Username:
 				if member in self.onlineUsers["Username"]:
 
@@ -324,10 +324,6 @@ class chatServer(threading.Thread):
 					sendData = [priv_addr, pub_addr]
 					p2pClient[0][0].send(pickle.dumps(sendData))
 		
-		p2pSocket1.close()
-		print("Closing socket 1")
-		p2pSocket2.close()
-		print("Closing socket 2")
 
 
 
