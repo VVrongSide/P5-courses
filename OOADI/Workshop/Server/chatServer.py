@@ -302,7 +302,7 @@ class chatServer(threading.Thread):
 		p2pClient = [[p2pSocket1, p2pAddress1]]
 
 		recv_data = p2pSocket1.recv(self.BUFFER_SIZE)
-		p2pClient[0].append = pickle.loads(recv_data)
+		p2pClient[0].append(pickle.loads(recv_data))
 
 
 		for i,member in enumerate(members):
