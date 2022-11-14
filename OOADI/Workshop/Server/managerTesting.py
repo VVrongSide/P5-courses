@@ -130,6 +130,7 @@ class ReceiveData(threading.Thread):
 				try:
 					key = s1.recv(BUFFER_SIZE)
 					print("I got the key!",pickle.loads(key))
+					s1.send(pickle.dumps('Succesfully received'))
 					self.p2pConnected = True
 					break
 				except:
@@ -152,7 +153,7 @@ class ReceiveData(threading.Thread):
 		while not self.p2pConnected:
 			
 			try:
-				s1.connect(addr)
+				connection, connectionAddr = s1.accept()
 				print("I am here")
 				print(s1)
 			except:
@@ -166,9 +167,9 @@ class ReceiveData(threading.Thread):
 			print("Sending key:", key)
 			while True:
 				try:
-					s1.send(pickle.dumps(key))
+					connection.send(pickle.dumps(key))
 					print("I sent")
-					recvdata = s1.recv(BUFFER_SIZE)
+					recvdata = connection.recv(BUFFER_SIZE)
 					print(pickle.loads(recvdata))
 					break
 				except:
