@@ -128,8 +128,6 @@ class ReceiveData(threading.Thread):
 					print("Trying to get key")
 					key = s1.recv(BUFFER_SIZE)
 					print("I got the key!",pickle.loads(key))
-					s1.send(pickle.dumps('23'))
-
 					self.p2pConnected = True
 					break
 				except:
