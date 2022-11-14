@@ -307,19 +307,18 @@ class chatServer(threading.Thread):
 
 		print('The current members are:', members)
 
-		for i, member in enumerate(members):
+		for member in members:
 			if member != Username:
 				print('Trying to reach member:', member)
-
 				if member in self.onlineUsers["Username"]:
 					
 					# Connect to member already in channel
 					senddata = ["p2pRequest", p2pClient[0][1], p2pClient[0][2]]
 					print("Sending data to sender:", senddata)
-					print(i)
-					self.connections[i][0].send(pickle.dumps(senddata))
+					index = self.onlineUsers["Username"].index(member)
+					self.connections[index][0].send(pickle.dumps(senddata))
 					
-					print("The current connections are: \n", self.connections[i], "\n")
+					print("The current connections are: \n", self.connections[index], "\n")
 					
 					# Get info from already connected user
 					p2pSocket2, p2pAddress2 = self.p2pSocket.accept()
