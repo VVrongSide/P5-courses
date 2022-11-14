@@ -105,36 +105,36 @@ class ReceiveData(threading.Thread):
 			addr = recv_list[1]
 			print("Addr 2", addr)
 			self.p2pSock.close()
+			
 		
 		
 		s1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		s1.settimeout(2)
 		s1.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		s1.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
-	
+
+		print(s1)
 		print(f'connect from {local_addr} to {addr}')
-		
 		while not self.p2pConnected:
 
 			try:
 				s1.connect(addr)
+				print(s1)
 			except:
 				#print("broken stuff", addr)
 				continue
 			
 			print("connected from %s to %s success!", local_addr, addr)
+			print("Trying to get key")
 			while True:
 				try:
-					print("Trying to get key")
 					key = s1.recv(BUFFER_SIZE)
 					print("I got the key!",pickle.loads(key))
 					self.p2pConnected = True
 					break
 				except:
-					print("Didn't get key")
-
-			
-
+					#print("Didn't get key")
+					continue
 			
 		s1.close()
 
@@ -147,13 +147,14 @@ class ReceiveData(threading.Thread):
 		s1.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		s1.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
 
-		
+		print(s1)
 		print(f'connect from {local_addr} to {addr}')
 		while not self.p2pConnected:
 			
 			try:
 				s1.connect(addr)
 				print("I am here")
+				print(s1)
 			except:
 				#print("broken stuff", addr)
 				continue
@@ -185,6 +186,7 @@ if __name__=="__main__":
 	SESSION = input('Insert Username: ')
 	print("Welcome {}. Initializing connection to the server.".format(SESSION))
 	s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+	s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 	s.connect((HOST, PORT))
 	
 
