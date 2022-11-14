@@ -43,36 +43,20 @@ def p2pServer(host='0.0.0.0', port=5005):
         for k in clients:
             if k == addr:
                 continue
-            print(clients[k].token)
             if clients[k].token == token:
-                print("match")
-                #(addr1, c1), (addr2, c2) = clients.items()
                 logger.info('server - send client info to: %s', clients[addr].pub)
                 send_msg(clients[addr].conn, clients[k].peer_msg())
                 logger.info('server - send client info to: %s', clients[k].pub)
                 send_msg(clients[k].conn, clients[addr].peer_msg())
                 match = 1
                 break
-        print(k)
         if match == 1:
             clients.pop(k)
             clients.pop(addr)
-            print(clients.items())
-
-
-        #if len(clients) == 2:
-        #    (addr1, c1), (addr2, c2) = clients.items()
-        #    logger.info('server - send client info to: %s', c1.pub)
-        #    send_msg(c1.conn, c2.peer_msg())
-        #    logger.info('server - send client info to: %s', c2.pub)
-        #    send_msg(c2.conn, c1.peer_msg())
-        #    clients.pop(addr1)
-        #    clients.pop(addr2)
-
+            logger.info('items left in clients dictionary: %s', clients.items())
     conn.close()
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
-    #main(*addr_from_args(sys.argv))
+    logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(message)s')
     p2pServer()
