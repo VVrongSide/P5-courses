@@ -11,6 +11,7 @@ class chatServer(threading.Thread):
 		############ SETUP SOCKET PARAMETERS #############
 		super().__init__()
 		self.PORT = 65432
+		self.p2pPort = 65433
 		
 		# Receive Buffer size (must be a power of 2)
 		self.BUFFER_SIZE = 1024
@@ -18,6 +19,10 @@ class chatServer(threading.Thread):
 		# Bind the socket without specifying host address to work with all host addresses
 		self.serverSocket = socket.socket()
 		self.serverSocket.bind(("", self.PORT))
+
+		# Bind p2p Socket
+		self.p2pSocket = socket.socket()
+		self.p2pSocket.bind(("",self.p2pPort))
 
 		# Create dictionary and list with online user information
 		self.onlineUsers = {
@@ -243,8 +248,10 @@ class chatServer(threading.Thread):
 				continue
 
 			if recv_data[0] == 'p2p':
-				tp = threading.Thread(target=self.p2pHandler, args=(recv_data[1], self.onlineUsers["Username"][clientIndex], recv_data[2], self.onlineUsers["ipAddress"][clientIndex], ))
+				tp = threading.Thread(target=self.p2pHandler, args=(recv_data[1], self.onlineUsers["Username"][clientIndex], ))
 				tp.start()
+				sendData = ['p2pAddr']
+				connection.sendall(pickle.dumps(sendData))
 				sleep(2)
 				continue
 
@@ -286,33 +293,39 @@ class chatServer(threading.Thread):
 
 
 
-				
-
-
-
-	################ Peer 2 Peer handling ######################
+################### Peer 2 Peer handling ######################
 	
-	def p2pHandler(self, Channel_name, Username, priv_addr, pub_addr):
+	def p2pHandler(self, Channel_name, Username):
 		members = self.getMembers(Channel_name)
-		for i in members:
-			if i != Username:
-				if i in self.onlineUsers["Username"]:
+		self.p2pSocket.listen()
+		p2pSocket1, p2pAddress1 = self.p2pSocket.accept()
+		p2pClient = [[p2pSocket1, p2pAddress1]]
+
+		recv_data = p2pSocket1.receive(self.BUFFER_SIZE)
+		p2pClient[0].append = pickle.loads(recv_data)
+
+
+		for i,member in enumerate(members):
+			if member != Username:
+				if member in self.onlineUsers["Username"]:
 
 					# Connect to member already in channel
-					index = self.onlineUsers["Username"].index(i)
-					senddata = ["p2pRequest",priv_addr, pub_addr, False]
-					self.connections[index][0].send(pickle.dumps(senddata))
+					senddata = ["p2pRequest", p2pClient[0][1], p2pClient[0][2]]
+					self.connections[i][0].send(pickle.dumps(senddata))
 					
 					# Get info from already connected user
-					recvdata = self.connections[index][0].recv(self.BUFFER_SIZE)
-					recv_list = pickle.loads(recvdata)
-					priv_addr = recv_list[0]
-					pub_addr = self.onlineUsers["ipAddress"][index]
+					p2pSocket2, p2pAddress2 = self.p2pSocket.accept()
+					p2pClient.append([p2pSocket2, p2pAddress2])
+					recvdata = p2pClient[1][0].recv(self.BUFFER_SIZE)
+					priv_addr = pickle.loads(recvdata)
+					pub_addr = p2pClient[1][1]
 
 					# Send info to user who wants to join
-					index = self.onlineUsers["Username"].index(Username)
-					senddata = ["p2pAddr", priv_addr, pub_addr, True]
-					self.connections[index][0].send(pickle.dumps(senddata))
+					sendData = [priv_addr, pub_addr]
+					p2pClient[0][0].send(pickle.dumps(sendData))
+		
+		p2pSocket1.close()
+		p2pSocket2.close()
 
 
 
