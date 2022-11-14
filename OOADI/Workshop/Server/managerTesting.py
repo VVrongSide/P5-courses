@@ -120,23 +120,26 @@ class ReceiveData(threading.Thread):
 		
 		#print(s1)
 		print(f'connect from {local_addr} to {addr}')
+		thisAddr = False
 		while not self.p2pConnected:
-			#print("I am in while loop")
 			try:
 				s1.connect(addr)
 				print(s1)
+				thisAddr = True
+				self.p2pConnected = True
 			except:
 				#print("broken stuff", addr)
 				continue
-			
+
+		if thisAddr:	
 			print(f'connected from {local_addr} to {addr} success!')
-			print("Trying to get key")
 			while True:
 				try:
+					print("Trying to get key")
 					key = s1.recv(BUFFER_SIZE)
-					print("I got the key!",pickle.loads(key))
+					print("I got the key!: ",pickle.loads(key))
 					s1.send(pickle.dumps('Succesfully received'))
-					self.p2pConnected = True
+					
 					break
 				except:
 					#print("Didn't get key")
@@ -156,18 +159,23 @@ class ReceiveData(threading.Thread):
 
 		print(s1)
 		print(f'connect from {local_addr} to {addr}')
+		thisAddr = False
 		while not self.p2pConnected:
 			
 			try:
 				s1.connect(addr)
 				print("I am here")
 				print(s1)
+				thisAddr = True
+				self.p2pConnected = True
 			except:
 				#print("broken stuff", addr)
 				continue
 			
 			print(f'connected from {local_addr} to {addr} success!')
 			
+
+		if thisAddr:
 
 			key = "TestKey"
 			print("Sending key:", key)
@@ -182,7 +190,7 @@ class ReceiveData(threading.Thread):
 					continue
 
 
-			self.p2pConnected = True
+			
 
 		s1.close()
 
