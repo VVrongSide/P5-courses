@@ -331,6 +331,7 @@ class chatServer(threading.Thread):
 					sendData = [priv_addr, pub_addr]
 					print('Sending data to receiver: ', sendData)
 					p2pClient[0][0].send(pickle.dumps(sendData))
+					print("Sent data to receiver, closing thread")
 		
 		#p2pClient[0][0].close()
 		#p2pClient[1][0].close()
