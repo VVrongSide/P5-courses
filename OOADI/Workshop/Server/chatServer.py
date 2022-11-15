@@ -202,6 +202,13 @@ class chatServer(threading.Thread):
 		with open(self.ChannelDB_fn, "wb") as pickle_file:
 			pickle.dump(ChannelDB, pickle_file)
 
+		members = self.getMembers(Channel_name)
+		sendmsg = ['logEntry', msg]
+		for i in members:
+			if i in self.onlineUsers["Username"]:
+				connIndex = self.onlineUsers["Username"].index(i)
+				self.connections[connIndex].send(pickle.dumps(sendmsg))
+
 
 
 ########## SOCKET HANDLING ###########
