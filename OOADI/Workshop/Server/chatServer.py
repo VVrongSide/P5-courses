@@ -288,8 +288,9 @@ class chatServer(threading.Thread):
 			sendData = [recv_data[0]]
 			for i in returnVal:
 				sendData.append(i)
+				print(i)
 
-				
+
 			connection.sendall(pickle.dumps(sendData))
 			
 		
