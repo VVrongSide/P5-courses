@@ -100,7 +100,7 @@ class chatServer(threading.Thread):
 			return [ret, accountDB.memberOfChannels(Username)]
 
 		# Return whether the login was succesful or not
-		return ret
+		return [ret]
 		
 	
 	########### associate a channel with a user in the accountDB ###########
@@ -239,7 +239,7 @@ class chatServer(threading.Thread):
 				case _:
 					return ["Invalid request type"]
 		except:
-			return False
+			return [False]
 
 
 ############## Handles the individual connections with clients (Started as thread for single client) ##################
@@ -285,9 +285,8 @@ class chatServer(threading.Thread):
 			sendData = [recv_data[0]]
 			for i in returnVal:
 				sendData.append(i)
-				print(i)
 
-
+			
 			connection.sendall(pickle.dumps(sendData))
 			
 		
