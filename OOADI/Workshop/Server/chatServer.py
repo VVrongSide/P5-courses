@@ -209,7 +209,7 @@ class chatServer(threading.Thread):
 			if i in self.onlineUsers["Username"]:
 				print(i)
 				connIndex = self.onlineUsers["Username"].index(i)
-				self.connections[connIndex].send(pickle.dumps(sendmsg))
+				self.connections[connIndex][0].send(pickle.dumps(sendmsg))
 		
 
 
