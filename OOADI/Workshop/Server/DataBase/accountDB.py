@@ -44,3 +44,7 @@ class account_DB(object):
 		self.accDB["Associated Channels"][self.index].append(ChannelID)
 		print(f'{Username} succesfully associated with channel: {ChannelID}')
 		return
+
+	def memberOfChannels(self, Username):
+		self.index = self.accDB["Username"].index(Username)
+		return self.accDB["Associated Channels"][self.index]

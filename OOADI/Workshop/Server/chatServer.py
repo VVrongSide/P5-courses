@@ -97,6 +97,7 @@ class chatServer(threading.Thread):
 		if ret:
 			self.onlineUsers["Username"][userIndex] = Username
 			print(self.onlineUsers)
+			return [ret, accountDB.memberOfChannels(Username)]
 
 		# Return whether the login was succesful or not
 		return ret
@@ -161,6 +162,8 @@ class chatServer(threading.Thread):
 		return ret
 
 
+
+
 ########## Get chatlog from channel ###############
 	def getLog(self, Channel_name, lastEntry=True):
 
@@ -209,19 +212,19 @@ class chatServer(threading.Thread):
 		try:
 			match datarecv[0]:
 				case "login":
-					return self.accountLogin(datarecv[1], datarecv[2],userIndex)  ### inputs(Username, Password, userIndex)
+					return [self.accountLogin(datarecv[1], datarecv[2],userIndex)]  ### inputs(Username, Password, userIndex)
 				case "createUser":
-					return self.createUser(datarecv[1], datarecv[2], userIndex) ### inputs(Username, Password)
+					return [self.createUser(datarecv[1], datarecv[2], userIndex)] ### inputs(Username, Password)
 				case "joinChannel":
-					return self.associateUser(username, datarecv[1]) ### inputs(Username,Channel_name)
+					return [self.associateUser(username, datarecv[1])] ### inputs(Username,Channel_name)
 				case "createChannel":
-					return self.createChannel(username, datarecv[1]) ### inputs(Username, Channel_name)
+					return [self.createChannel(username, datarecv[1])] ### inputs(Username, Channel_name)
 				case "lastChat":
-					return self.getLog(datarecv[1]) ### inputs(Channel_name)
+					return [self.getLog(datarecv[1])] ### inputs(Channel_name)
 				case "chatLog":
-					return self.getLog(datarecv[1], lastEntry=False) ### input(Channel_name)
+					return [self.getLog(datarecv[1], lastEntry=False)] ### input(Channel_name)
 				case "logEntry":
-					return self.logEntry(datarecv[1], datarecv[2]) ###Input(Channel_name, msg)
+					return [self.logEntry(datarecv[1], datarecv[2])] ###Input(Channel_name, msg)
 				case _:
 					return "Invalid request type"
 		except:
@@ -266,7 +269,7 @@ class chatServer(threading.Thread):
 				break
 
 			returnVal = self.recieveData(recv_data,ipaddress)
-			sendData = [recv_data[0], returnVal]
+			sendData = [recv_data[0]] + returnVal
 			connection.sendall(pickle.dumps(sendData))
 			
 		
