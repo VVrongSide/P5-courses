@@ -233,7 +233,7 @@ class chatServer(threading.Thread):
 				case "logEntry":
 					return [self.logEntry(datarecv[1], datarecv[2])] ###Input(Channel_name, msg)
 				case _:
-					return "Invalid request type"
+					return ["Invalid request type"]
 		except:
 			return False
 
@@ -276,7 +276,8 @@ class chatServer(threading.Thread):
 				break
 
 			returnVal = self.recieveData(recv_data,ipaddress)
-			sendData = [recv_data[0]] + returnVal
+			sendData = [recv_data[0]]
+			sendData.append(returnVal)
 			connection.sendall(pickle.dumps(sendData))
 			
 		
@@ -383,4 +384,5 @@ class chatServer(threading.Thread):
 if __name__=="__main__":
 	# Initiate the class
 	chatserver = chatServer()
+
 
