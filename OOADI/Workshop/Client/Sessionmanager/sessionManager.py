@@ -6,6 +6,7 @@ import cryptography
 import channel_Manager as ChManager
 import random
 import string
+import threading
 
 #############################################################################
 #
@@ -13,10 +14,11 @@ import string
 #
 #############################################################################
 
-class UI_Session_Manager:
+class UI_Session_Manager(threading.Thread):
     def __init__(self):
         self.loggedin = False
         self.interface = iSock.interface()
+        self.Channels = []
 
     def createUser(self, username, password):
         self.username = username
@@ -54,11 +56,7 @@ class UI_Session_Manager:
         try:
             sendList = ["joinChannel", NameOfChannel]
             sendList = pickle.dumps(sendList,pickle.HIGHEST_PROTOCOL)
-            res = self.interface.send(sendList)
-            if (res == True):
-                return True
-            else:
-                return False
+            self.interface.send(sendList)
         except:
             return False
 
@@ -98,19 +96,42 @@ class UI_Session_Manager:
         res = self.interface.listen()
         match res[0]:
             case 'login':
-                return True
+                if (res[1] == True):
+                    self.password = ""
+                    self.username = ""
+                    self.loggedin = False
+                    return false
+                else:
+                    return True
+
             case 'createUser':
-                return True
+                if (res[1] == False):
+                    self.username = ""
+                    self.password = ""
+                    return False
+                else:
+                    self.loggedin = True
+                    return True
+
             case 'joinChannel':
-                return
+                if (res[1] == False):
+                    return False
+                else:
+                        
+                    return 'joinChannel', True
+
             case 'createChannel':
-                return
+                return True
+
             case 'lastChat':
-                return
+                lastMessage = res[1]
+                return lastMessage
+
             case 'chatLog':
-                return
-            case 'logEntry':
-                return
+                return res[2]
+
+            case other:
+                return False
             
 
         
