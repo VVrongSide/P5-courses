@@ -355,8 +355,8 @@ class chatServer(threading.Thread):
 	def run(self):
 		# Listen for connections on the socket
 		self.serverSocket.listen(1)
-		t = threading.Thread(target=self.aliveChecker)
-		t.start()
+		#t = threading.Thread(target=self.aliveChecker)
+		#t.start()
 		while True:
 			# Accept new connections to the server
 			sessionSocket, sessionAddress = self.serverSocket.accept()
