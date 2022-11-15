@@ -340,7 +340,7 @@ class chatServer(threading.Thread):
 		
 		p2pClient[0][0].close()
 		p2pClient[1][0].close()
-		sys.exit()
+		threading.Thread.exit()
 		
 
 
