@@ -72,7 +72,7 @@ class chatServer(threading.Thread):
 
 
 	############# Create a user in the accountDB ##########
-	def createUser(self, Username, Password):
+	def createUser(self, Username, Password, userIndex):
 		# Load the pickled account object
 		with open(self.accountDB_fn, "rb") as pickle_file:
 			accountDB = pickle.load(pickle_file)
@@ -82,6 +82,8 @@ class chatServer(threading.Thread):
 		if ret:
 			with open(self.accountDB_fn, "wb") as pickle_file:
 				pickle.dump(accountDB, pickle_file)
+			self.onlineUsers["Username"][userIndex] = Username
+			print(self.onlineUsers)
 		return ret
 		
 
@@ -209,7 +211,7 @@ class chatServer(threading.Thread):
 				case "login":
 					return self.accountLogin(datarecv[1], datarecv[2],userIndex)  ### inputs(Username, Password, userIndex)
 				case "createUser":
-					return self.createUser(datarecv[1], datarecv[2]) ### inputs(Username, Password)
+					return self.createUser(datarecv[1], datarecv[2], userIndex) ### inputs(Username, Password)
 				case "joinChannel":
 					return self.associateUser(username, datarecv[1]) ### inputs(Username,Channel_name)
 				case "createChannel":
