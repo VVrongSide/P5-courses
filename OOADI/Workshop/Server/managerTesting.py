@@ -92,12 +92,12 @@ class ReceiveData(threading.Thread):
 			
 			print(recv_data)
 
-	def ReceiveKey(self, first=True, addr = None):
-		local_addr = self.p2pSock.getsockname()
+	def ReceiveKey(self, first=True, addr = None, local_addr=None):
 		
 		print("In receive key")
-		print(local_addr)
 		if first:
+			local_addr = self.p2pSock.getsockname()
+			print(local_addr)
 			self.p2pSock.send(pickle.dumps(local_addr))
 			print("Sended")
 			recv_data = self.p2pSock.recv(BUFFER_SIZE)
@@ -105,7 +105,7 @@ class ReceiveData(threading.Thread):
 			recv_list = pickle.loads(recv_data)
 			addr = recv_list[0]
 			print("Addr 1", addr)
-			thread1 = threading.Thread(target=self.ReceiveKey, args=(False, addr, ))
+			thread1 = threading.Thread(target=self.ReceiveKey, args=(False, addr, local_addr, ))
 			thread1.start()
 			addr = recv_list[1]
 			print("Addr 2", addr)
