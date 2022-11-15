@@ -205,9 +205,13 @@ class chatServer(threading.Thread):
 		members = self.getMembers(Channel_name)
 		sendmsg = ['logEntry', msg]
 		for i in members:
+			print(i)
 			if i in self.onlineUsers["Username"]:
+				print(i)
 				connIndex = self.onlineUsers["Username"].index(i)
 				self.connections[connIndex].send(pickle.dumps(sendmsg))
+		
+
 
 
 
@@ -274,10 +278,16 @@ class chatServer(threading.Thread):
 			# If bye signal was sent from client, break loop and close connection
 			if recv_data[0] == 'BYE':
 				break
+			
 
 			returnVal = self.recieveData(recv_data,ipaddress)
+			
+			if recv_data[0] == 'logEntry':
+				continue
+
 			sendData = [recv_data[0]]
 			sendData.append(returnVal)
+			
 			connection.sendall(pickle.dumps(sendData))
 			
 		
