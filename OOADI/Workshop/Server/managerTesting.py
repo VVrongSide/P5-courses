@@ -17,29 +17,33 @@ class SendData(threading.Thread):
 
 
 	def run(self):
-		while True:
-			send_data = input('What to Do?: ')
-			if send_data == "BYE":
-				chat_data=[send_data]
+		try:
+			while True:
+				send_data = input('What to Do?: ')
+				if send_data == "BYE":
+					chat_data=[send_data]
+					chat_string = pickle.dumps(chat_data)
+					self.ds.send(chat_string)
+					print("Connection closed.")
+					break
+
+				else:
+					chat_data = [send_data]
+				
+				while True:
+					send_data = input('Input your data: ')
+					if send_data == "endmsg":	
+						break
+					
+					else:
+						chat_data.append(send_data)
+
+				
 				chat_string = pickle.dumps(chat_data)
 				self.ds.send(chat_string)
-				print("Connection closed.")
-				break
-
-			else:
-				chat_data = [send_data]
-			
-			while True:
-				send_data = input('Input your data: ')
-				if send_data == "endmsg":	
-					break
-				
-				else:
-					chat_data.append(send_data)
-
-			
-			chat_string = pickle.dumps(chat_data)
-			self.ds.send(chat_string)
+		except KeyboardInterrupt:
+			send_data = ['BYE']
+			self.ds.send(pickle.dumps(send_data))
 
 	def addr_to_msg(self, addr):
 		return '{}:{}'.format(addr[0], str(addr[1]))
@@ -91,6 +95,7 @@ class ReceiveData(threading.Thread):
 				continue
 			
 			print(recv_data)
+		
 
 	def ReceiveKey(self, first=True, addr = None, local_addr=None):
 		
