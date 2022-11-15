@@ -203,7 +203,7 @@ class chatServer(threading.Thread):
 			pickle.dump(ChannelDB, pickle_file)
 
 		members = self.getMembers(Channel_name)
-		sendmsg = ['logEntry', msg]
+		sendmsg = ['logEntry', Channel_name, msg]
 		for i in members:
 			print(i)
 			if i in self.onlineUsers["Username"]:
