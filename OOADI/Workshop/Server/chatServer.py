@@ -286,7 +286,7 @@ class chatServer(threading.Thread):
 				continue
 
 			sendData = [recv_data[0]]
-			for i in returnVal:
+			for i in returnVal[0]:
 				sendData.append(i)
 				print(i)
 
