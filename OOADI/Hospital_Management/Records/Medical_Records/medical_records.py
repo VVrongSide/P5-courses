@@ -1,3 +1,14 @@
+<<<<<<< HEAD
+class Medical_Record():
+    """Medical Record contains a list of patients prescriptions and notes.
+    """
+    def __init__(self, prescription, note):
+        self.prescription = Prescription()
+        self.note = Note()
+
+    def list_prescriptions(self):
+        pass
+=======
 from Notes.notes import Note
 from Prescriptions.prescriptions import Prescription 
 
@@ -20,6 +31,7 @@ class Medical_Record():
     def list_prescriptions(self):
         for prescript in self.prescriptionList:
             print(prescript)
+>>>>>>> main
 
     def list_notes(self):
         pass

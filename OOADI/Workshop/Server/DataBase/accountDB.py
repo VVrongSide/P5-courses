@@ -12,7 +12,7 @@ class account_DB(object):
 			return True
 		else:
 			return False
-	
+
 
 	def createUser(self, Username, Password):
 		if self.lookUpAccount(Username):
@@ -35,7 +35,6 @@ class account_DB(object):
 
 		print(f'Failed login attempt for user {Username}')
 		return False
-		
 
 	def addChannel(self, Username, ChannelID):
 		self.index = self.accDB["Username"].index(Username)
@@ -45,4 +44,3 @@ class account_DB(object):
 		self.accDB["Associated Channels"][self.index].append(ChannelID)
 		print(f'{Username} succesfully associated with channel: {ChannelID}')
 		return
-	
