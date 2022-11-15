@@ -223,7 +223,7 @@ class chatServer(threading.Thread):
 		try:
 			match datarecv[0]:
 				case "login":
-					return [self.accountLogin(datarecv[1], datarecv[2],userIndex)]  ### inputs(Username, Password, userIndex)
+					return self.accountLogin(datarecv[1], datarecv[2],userIndex)  ### inputs(Username, Password, userIndex)
 				case "createUser":
 					return [self.createUser(datarecv[1], datarecv[2], userIndex)] ### inputs(Username, Password)
 				case "joinChannel":
@@ -255,16 +255,13 @@ class chatServer(threading.Thread):
 				recv_data = pickle.loads(recv_string)
 				clientIndex = self.onlineUsers["ipAddress"].index(ipaddress)
 			except:
-				# If alivecheck has been sent and nothing was received (timeout) break loop and close connection
-				clientIndex = self.onlineUsers["ipAddress"].index(ipaddress)
-				if self.connections[clientIndex][1] == 0:
-					break
 				continue
 
+			"""
 			# If the alivecheck has been sent and a alive was received, tell this to shared variable.
 			if recv_data[0] == 'alive':
 				self.connections[clientIndex][1] = 1
-				continue
+				continue """
 
 			if recv_data[0] == 'p2p':
 				tp = threading.Thread(target=self.p2pHandler, args=(recv_data[1], self.onlineUsers["Username"][clientIndex], ))
@@ -286,7 +283,7 @@ class chatServer(threading.Thread):
 				continue
 
 			sendData = [recv_data[0]]
-			for i in returnVal[0]:
+			for i in returnVal:
 				sendData.append(i)
 				print(i)
 
@@ -300,6 +297,7 @@ class chatServer(threading.Thread):
 		sys.exit()
 
 
+	"""
 ###################### CHECK CONNECTION STATUS ############################
 	def aliveChecker(self):
 		while True:
@@ -320,7 +318,7 @@ class chatServer(threading.Thread):
 						# Set alive status to 0 in case of timeout, since this means no connection to user
 						self.connections[connIndex][1] = 0
 				sleep(1)
-
+	"""
 
 
 ################### Peer 2 Peer handling ######################
