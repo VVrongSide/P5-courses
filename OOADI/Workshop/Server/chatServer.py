@@ -1,3 +1,4 @@
+import sys
 from time import sleep
 from DataBase.accountDB import account_DB
 from DataBase.channelDB import Channel_DB
@@ -270,6 +271,7 @@ class chatServer(threading.Thread):
 		# When BYE is recieved close the connection
 		self.userPop(ipaddress)
 		connection.close()
+		sys.exit()
 
 
 ###################### CHECK CONNECTION STATUS ############################
@@ -334,9 +336,11 @@ class chatServer(threading.Thread):
 					print('Sending data to receiver: ', sendData)
 					p2pClient[0][0].send(pickle.dumps(sendData))
 					print("Sent data to receiver, closing thread")
+					break
 		
 		p2pClient[0][0].close()
 		p2pClient[1][0].close()
+		sys.exit()
 		
 
 

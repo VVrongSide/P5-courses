@@ -1,5 +1,6 @@
 import socket
 import pickle
+import sys
 from time import sleep
 import threading
 
@@ -147,6 +148,7 @@ class ReceiveData(threading.Thread):
 					continue
 			
 		s1.close()
+		sys.exit()
 
 
 	def SendKey(self, addr, local_addr):
@@ -194,6 +196,7 @@ class ReceiveData(threading.Thread):
 			
 
 		s1.close()
+		sys.exit()
 
 
 
