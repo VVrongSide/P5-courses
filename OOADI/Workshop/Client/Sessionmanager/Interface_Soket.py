@@ -11,10 +11,7 @@ class interface:
 
     def send(self, message):
         try:
-            self.socket.sendall(message)
-            mes = self.socket.recv(self.BUFFER_SIZE)
-            mes = pickle.loads(mes)
-            return mes
+            self.socket.send(message)
         except:
             print("failed to send")
             return False

@@ -65,7 +65,7 @@ class MainGUI(Tk):
             # Create account button
         self.button_create = Button(self.frame4, text='Create account',width=13,command=lambda: self.__create_account())
         self.button_create.grid(row=6, column=1,padx=15)
-        self.frame4.pack(pady=35) 
+        self.frame4.pack(pady=35)
 
 
     def __create_account(self):
