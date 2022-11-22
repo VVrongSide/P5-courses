@@ -140,6 +140,22 @@ class UI_Session_Manager(threading.Thread):
 		except:
 			return False
 
+	def updateChannel(self, Channel):
+		sendList = ["chatLog", Channel]
+		sendList = pickle.dumps(sendList)
+		self.interface.send(sendList)
+		event_update = self.event.wait(10)
+		if event_update:
+			for message in self.queue:
+				if message[0] == 'chatLog':
+					index = self.queue.index(message)
+					ret = self.queue.pop(index)
+					self.event.clear()
+					return ret[1]
+
+
+		
+
 	def P2Psend(self, private, public, channel):
 
 		key = self.clientDB.lookup("Channel_key", channel, False)

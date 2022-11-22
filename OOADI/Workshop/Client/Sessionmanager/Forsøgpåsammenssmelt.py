@@ -192,21 +192,18 @@ class TabGUI(Tk):
             Denied: Error prompt
         """      
         self.entry_invite_code.delete(0, 'end')        
-        #! Verify invite_code is in database. 
-        #! Get encryption token from another user.
-        #! Get channel log from database.
-        confirmation = False
-        if invite_code == 'comtek2020':
-            confirmation = True
-        #! ##################################
+        confirmation = self.SM.joinChannel(invite_code)
         if confirmation == True:
             chat = Channel(self, invite_code, self.SM)  
             chat.create_chat_tab()
             tab_names = [self.notebook.tab(i, option="text") for i in self.notebook.tabs()]     
             self.tab_names[tab_names[0]] = chat
             self.label_error.config(text="Succes!", fg="blue")
+            ret = self.SM.updateChannel(invite_code)
+            chat.update_channel(ret)
         else:
             self.label_error.config(text="Invalied invitation code!", fg="red")
+        
 
   
     def __create_chat_button(self, invite_code):
