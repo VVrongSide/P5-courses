@@ -209,7 +209,7 @@ class chatServer(threading.Thread):
 			if i in self.onlineUsers["Username"]:
 				print(i)
 				connIndex = self.onlineUsers["Username"].index(i)
-				self.connections[connIndex][0].send(pickle.dumps(sendmsg))
+				self.connections[connIndex][0].sendall(pickle.dumps(sendmsg))
 		
 
 
@@ -341,7 +341,7 @@ class chatServer(threading.Thread):
 					senddata = ["p2pRequest", p2pClient[0][1], p2pClient[0][2], Channel_name]
 					print("Sending data to sender:", senddata)
 					index = self.onlineUsers["Username"].index(member)
-					self.connections[index][0].send(pickle.dumps(senddata))
+					self.connections[index][0].sendall(pickle.dumps(senddata))
 					
 					print("The current connections are: \n", self.connections[index], "\n")
 					
@@ -355,7 +355,7 @@ class chatServer(threading.Thread):
 					# Send info to user who wants to join
 					sendData = [priv_addr, pub_addr]
 					print('Sending data to receiver: ', sendData)
-					p2pClient[0][0].send(pickle.dumps(sendData))
+					p2pClient[0][0].sendall(pickle.dumps(sendData))
 					print("Sent data to receiver, closing thread")
 					break
 		
