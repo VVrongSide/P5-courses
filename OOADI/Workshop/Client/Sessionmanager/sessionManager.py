@@ -206,10 +206,10 @@ class UI_Session_Manager(threading.Thread):
 			key = self.clientDB.lookup("Channel_key", channel, False)
 			ret[1] =  pickle.loads(key.decrypt(ret[1]))
 			return ret
-
-		key = self.clientDB.lookup("Channel_key", ret[0], False)
-		ret[1][1] = pickle.loads(key.decrypt(ret[1][1]))
-		return ret[1][1]
+		else:
+			key = self.clientDB.lookup("Channel_key", ret[0], False)
+			ret[1][1] = pickle.loads(key.decrypt(ret[1][1]))
+			return ret[1][1]
 
 	def get_random_string(self, length):
 		# choose from all lowercase letter
