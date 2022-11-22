@@ -266,8 +266,6 @@ class chatServer(threading.Thread):
 			if recv_data[0] == 'p2p':
 				tp = threading.Thread(target=self.p2pHandler, args=(recv_data[1], self.onlineUsers["Username"][clientIndex], ))
 				tp.start()
-				sendData = ['p2pAddr']
-				connection.sendall(pickle.dumps(sendData))
 				sleep(2)
 				continue
 
