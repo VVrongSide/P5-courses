@@ -338,7 +338,7 @@ class chatServer(threading.Thread):
 				if member in self.onlineUsers["Username"]:
 					
 					# Connect to member already in channel
-					senddata = ["p2pRequest", p2pClient[0][1], p2pClient[0][2]]
+					senddata = ["p2pRequest", p2pClient[0][1], p2pClient[0][2], Channel_name]
 					print("Sending data to sender:", senddata)
 					index = self.onlineUsers["Username"].index(member)
 					self.connections[index][0].send(pickle.dumps(senddata))
