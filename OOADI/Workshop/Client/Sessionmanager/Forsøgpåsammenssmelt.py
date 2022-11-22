@@ -329,16 +329,16 @@ class Channel(Frame):
             self.line_num += 1  
             self.text_field.config(state=DISABLED)
             return
-
-        self.text_field.config(state=NORMAL)
-        self.text_field.delete('0.0', END)
-        self.line_num = float(1.0)    
-        for post in channel_log:
-            post = self.SM.decrypt(post, ChannelName, True)
-            post_entry = post[0]+ ' : ' + post[1]+ '\n'
-            self.text_field.insert(str(self.line_num),post_entry)
-            self.line_num += 1  
-        self.text_field.config(state=DISABLED)    
+        else:
+            self.text_field.config(state=NORMAL)
+            self.text_field.delete('0.0', END)
+            self.line_num = float(1.0)    
+            for post in channel_log:
+                post = self.SM.decrypt(post, ChannelName, True)
+                post_entry = post[0]+ ' : ' + post[1]+ '\n'
+                self.text_field.insert(str(self.line_num),post_entry)
+                self.line_num += 1  
+            self.text_field.config(state=DISABLED)    
 """
 ############################################################################################
 ############################################################################################
