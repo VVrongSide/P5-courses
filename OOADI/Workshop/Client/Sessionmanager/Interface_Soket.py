@@ -5,7 +5,7 @@ class interface:
     def __init__(self, socket):
         self.port = 65432
         self.host = "nisker.win"
-        self.BUFFER_SIZE = 1024
+        self.BUFFER_SIZE = 8192
         self.socket = socket
         self.socket.connect((self.host, self.port))
 
