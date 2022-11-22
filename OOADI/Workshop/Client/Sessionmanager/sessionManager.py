@@ -88,6 +88,7 @@ class UI_Session_Manager(threading.Thread):
 								Channel.Lookup()
 								print("Login: ", ret)
 								self.Channels.append([channelname,Channel])
+								print(ret)
 							return ret[1], ret[2]
 				return False
 			else:
@@ -124,7 +125,7 @@ class UI_Session_Manager(threading.Thread):
 			event_createUser = self.event.wait(10)
 			if event_createUser:
 				for message in self.queue:
-					if message[0] == 'createUser' and message[1]  == True:
+					if message[0] == 'joinChannel' and message[1]  == True:
 						index = self.queue.index(message)
 						self.queue.pop(index)
 						self.event.clear()
