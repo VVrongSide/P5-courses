@@ -10,6 +10,7 @@ from cryptography import fernet as f
 from clientDB import Client_DB
 import os
 import signal
+from p2pClass import p2pClass as p2p
 
 #############################################################################
 #
@@ -25,6 +26,7 @@ class UI_Session_Manager(threading.Thread):
 		self.event = threading.Event()
 		thread2 = threading.Thread(target=self.receiveMessage, )
 		thread2.start()
+		self.p2p = p2p()
 		
 		self.path = 'clientData.txt'
 		if not os.path.exists(self.path):
@@ -126,9 +128,7 @@ class UI_Session_Manager(threading.Thread):
 						ret = message
 						self.event.clear()
 
-						#! Indsæt P2P manager ting
-						Key = self.createP2PManager()
-
+						Key = self.P2Preceive(NameOfChannel)
 
 						Channel = UI_Channel_Manager(self.clientDB, str(NameOfChannel),Key)
 						Channel.Howtosavealife()
@@ -140,9 +140,18 @@ class UI_Session_Manager(threading.Thread):
 		except:
 			return False
 
-	def createP2PManager(self):
-		Key = 'JabbatheHut'
-		return Key
+	def P2Psend(self, private, public, channel):
+
+		key = self.clientDB.lookup("Channel_key", channel, False)
+		self.p2p.Sending(private, public, key)
+		return True
+
+	def P2Preceive(self, channel):
+		sendlist = ["p2p", channel]
+		self.interface.send(pickle.dumps(sendlist))
+		return self.P2Preceive()
+
+
 
 	def sendMessage(self, message, channel):
 		try:
