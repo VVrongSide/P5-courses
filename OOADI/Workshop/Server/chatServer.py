@@ -262,7 +262,7 @@ class chatServer(threading.Thread):
 			if recv_data[0] == 'alive':
 				self.connections[clientIndex][1] = 1
 				continue """
-
+			print(recv_data)
 			if recv_data[0] == 'p2p':
 				tp = threading.Thread(target=self.p2pHandler, args=(recv_data[1], self.onlineUsers["Username"][clientIndex], ))
 				tp.start()
