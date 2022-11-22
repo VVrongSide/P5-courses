@@ -201,7 +201,7 @@ class TabGUI(Tk):
             self.tab_names[tab_names[0]] = chat
             self.label_error.config(text="Succes!", fg="blue")
             ret = self.SM.updateChannel(invite_code)
-            chat.update_channel(ret)
+            chat.update_channel(ret, invite_code)
         else:
             self.label_error.config(text="Invalied invitation code!", fg="red")
         
@@ -319,7 +319,7 @@ class Channel(Frame):
         self.parent.notebook.insert(0, self.frame, text=self.name)
 
 
-    def update_channel(self,channel_log, Entry = False):
+    def update_channel(self,channel_log,ChannelName, Entry = False):
         """Update an the channel log text field in an exsiting channel."""
 
         if Entry:
@@ -334,6 +334,7 @@ class Channel(Frame):
         self.text_field.delete('0.0', END)
         self.line_num = float(1.0)    
         for post in channel_log:
+            post = self.SM.decrypt(post, ChannelName, True)
             post_entry = post[0]+ ' : ' + post[1]+ '\n'
             self.text_field.insert(str(self.line_num),post_entry)
             self.line_num += 1  

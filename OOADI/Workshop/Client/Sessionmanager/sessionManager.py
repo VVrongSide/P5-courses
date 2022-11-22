@@ -153,6 +153,7 @@ class UI_Session_Manager(threading.Thread):
 				if message[0] == 'chatLog':
 					index = self.queue.index(message)
 					ret = self.queue.pop(index)
+					ret = self.decrypt(ret)
 					self.event.clear()
 					return ret[1]
 
@@ -198,8 +199,14 @@ class UI_Session_Manager(threading.Thread):
 		print("encrypted")
 		return encMessage
 		
-	def decrypt(self, ret):
+	def decrypt(self, ret, channel = None, Log = False):
 		#! DUMPS måske
+
+		if Log:
+			key = self.clientDB.lookup("Channel_key", channel, False)
+			ret[1] =  pickle.loads(key.decrypt(ret[1]))
+			return ret
+
 		key = self.clientDB.lookup("Channel_key", ret[0], False)
 		ret[1][1] = pickle.loads(key.decrypt(ret[1][1]))
 		return ret[1][1]
