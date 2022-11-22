@@ -132,6 +132,7 @@ class UI_Session_Manager(threading.Thread):
 
 						print("p2p: før")
 						Key = self.P2Preceive(NameOfChannel)
+						Key = pickle.loads(Key)
 						print("p2p: efter")
 						Channel = UI_Channel_Manager(self.clientDB, str(NameOfChannel),Key)
 						Channel.Howtosavealife()
@@ -204,12 +205,10 @@ class UI_Session_Manager(threading.Thread):
 
 		if Log:
 			key = self.clientDB.lookup("Channel_key", channel, False)
-			key = pickle.loads(key)
 			ret[1] =  pickle.loads(key.decrypt(ret[1]))
 			return ret
 		else:
 			key = self.clientDB.lookup("Channel_key", ret[0], False)
-			key = pickle.loads(key)
 			ret[1][1] = pickle.loads(key.decrypt(ret[1][1]))
 			return ret[1][1]
 
