@@ -130,15 +130,17 @@ class UI_Session_Manager(threading.Thread):
 						self.queue.pop(index)
 						self.event.clear()
 
+						print("p2p: før")
 						Key = self.P2Preceive(NameOfChannel)
-
+						print("p2p: efter")
 						Channel = UI_Channel_Manager(self.clientDB, str(NameOfChannel),Key)
 						Channel.Howtosavealife()
 						return True
 				return False
 			else:
 				return False
-		except:
+		except Exception as e:
+			print(e)
 			return False
 
 	def updateChannel(self, Channel):
@@ -158,15 +160,17 @@ class UI_Session_Manager(threading.Thread):
 		
 
 	def P2Psend(self, private, public, channel):
-
 		key = self.clientDB.lookup("Channel_key", channel, False)
 		self.p2p.Sending(private, public, key)
 		return
 
 	def P2Preceive(self, channel):
+		print("p2pR: ",1)
 		sendlist = ["p2p", channel]
+		print("p2pR: ",2)
 		self.interface.send(pickle.dumps(sendlist))
-		return self.P2Preceive()
+		print("p2pR: ",3)
+		return self.p2p.Receiving()
 
 
 

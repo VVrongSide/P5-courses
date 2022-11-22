@@ -169,7 +169,7 @@ class TabGUI(Tk):
         self.label_invite_code = Label(self.frame1, text='Invitation Code')
         self.label_invite_code.grid(row=1, column=0, columnspan=2)
             # Text field
-        self.entry_invite_code = Entry(self.frame1, show='*')
+        self.entry_invite_code = Entry(self.frame1)
         self.entry_invite_code.grid(row=2, column=0,columnspan=2)
         self.entry_invite_code.focus()
             # Join chat button
@@ -193,6 +193,7 @@ class TabGUI(Tk):
         """      
         self.entry_invite_code.delete(0, 'end')        
         confirmation = self.SM.joinChannel(invite_code)
+        print(confirmation)
         if confirmation == True:
             chat = Channel(self, invite_code, self.SM)  
             chat.create_chat_tab()
