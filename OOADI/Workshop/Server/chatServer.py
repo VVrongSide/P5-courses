@@ -235,7 +235,7 @@ class chatServer(threading.Thread):
 				case "chatLog":
 					return [self.getLog(datarecv[1], lastEntry=False)] ### input(Channel_name)
 				case "logEntry":
-					return [self.logEntry(datarecv[1], datarecv[2])] ###Input(Channel_name, msg)
+					return [self.logEntry(datarecv[1], username, datarecv[2])] ###Input(Channel_name, msg)
 				case _:
 					return ["Invalid request type"]
 		except:
