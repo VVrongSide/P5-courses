@@ -80,14 +80,13 @@ class MainGUI(Tk):
         entered_password = self.entry_password.get()
         
         check = self.USM.createUser(self.username, entered_password)
-            
         if check:
             self.destroy()
             tab = TabGUI(self.USM)
             tab.run()
             tab.mainloop() 
         else:                                                           
-            self.label_error.config(text="Invalied username and/or password!", fg="red")
+            self.label_error.config(text="Invalid username and/or password!", fg="red")
 
 
     def __log_in(self):  
@@ -100,8 +99,9 @@ class MainGUI(Tk):
         self.username = self.entry_username.get()
         entered_password = self.entry_password.get()
 
-
+        print(1)
         check, channels = self.USM.login(self.username, entered_password)
+        print(2)
         #! Create a socket connection to the server.
         #! Verify in the database that the username and password is valid.
         #! Returns a boolean regarding the result and a list with chats.
@@ -150,6 +150,8 @@ class TabGUI(Tk):
         time.sleep(1)
         t1 = threading.Thread(target=self.__recieve_msg)
         t1.start()
+
+
         
 
     def add_default_tab(self):
@@ -198,7 +200,7 @@ class TabGUI(Tk):
             confirmation = True
         #! ##################################
         if confirmation == True:
-            chat = Channel(self, invite_code)  
+            chat = Channel(self, invite_code, self.SM)  
             chat.create_chat_tab()
             tab_names = [self.notebook.tab(i, option="text") for i in self.notebook.tabs()]     
             self.tab_names[tab_names[0]] = chat
@@ -222,7 +224,7 @@ class TabGUI(Tk):
 
         #! ###################################
         if self.SM.createChannel(invite_code):
-            chat = Channel(self, invite_code)  
+            chat = Channel(self, invite_code, self.SM)  
             chat.create_chat_tab()
             tab_names = [self.notebook.tab(i, option="text") for i in self.notebook.tabs()]     
             self.tab_names[tab_names[0]] = chat
@@ -231,42 +233,27 @@ class TabGUI(Tk):
             self.label_error.config(text="Something went wrong, try again!", fg="red")
 
 
-    def __send_button(self, msg):
-        """Encrypts the message and passes it on for transmission 
-
-        Args:
-            msg (string): 
-        """
-        #! Encrypt the message.
-        ct_msg = msg 
-        #! ###########################
-        t = threading.Thread(target=self.__send_msg(msg))
-        t.start()
-        self.entry_chat_msg.delete(0, 'end')
-
-
-    def __send_msg(self, CT_msg):
-        """Connects and forward the encrypted message to the server.
-
-        Args:
-            CT_msg (string): Encrypted message 
-        """
-        while True:
-            #! Need socket object
-            #! #######################
-            message = CT_msg
-            SOCKET_OBJECT.send(message)
-            break
 
 
     def __recieve_msg(self):
         """Waits for the server to send update to any channel.
         Upon recieving some data a request to update a tab channel is made.
         """
-        #! Need socket object
-        #! #######################      
-        time.sleep(2)
-        #! #######################      
+        while True:
+            for message in self.SM.queue:
+                if message[0] == "logEntry":
+                        index = self.SM.queue.index(message)
+                        ret = self.SM.queue.pop(index)
+                        ret.pop(0)
+
+                        if ret[0] in self.tab_names.keys():
+                            tab_object = self.tab_names.get(ret[0])
+
+                            ret[1][1] = self.SM.decrypt(ret)
+
+                            tab_object.update_channel(ret[1],True)
+            time.sleep(1)  
+        #    
         # for index in update:
         #     if index[0] in self.tab_names.keys():
         #         tab_object = self.tab_names.get(index[0])
@@ -288,11 +275,33 @@ class Channel(Frame):
     Args:
         Frame (object): Tkinter frame object
     """
-    def __init__(self, parent, name):
+    def __init__(self, parent, name, session):
         Frame.__init__(self)
         self.parent = parent
         self.name = name
+        self.SM = session
+        self.line_num = float(1.0)
 
+    def __send_button(self, msg):
+        """Encrypts the message and passes it on for transmission 
+
+        Args:
+            msg (string): 
+        """
+        t = threading.Thread(target=self.__send_msg(msg))
+        t.start()
+        self.entry_chat_msg.delete(0, 'end')
+
+
+    def __send_msg(self, message):
+        """Connects and forward the encrypted message to the server.
+
+        Args:
+            CT_msg (string): Encrypted message 
+        """
+        print(message)
+        self.SM.sendMessage(message, self.name)
+        
 
     def create_chat_tab(self):
         """Fill the tab with a channel log text field and a text input field.
@@ -312,16 +321,25 @@ class Channel(Frame):
         self.parent.notebook.insert(0, self.frame, text=self.name)
 
 
-    def update_channel(self, channel_log):
-        """Update an the channel log text field in an exsiting channel.
-        """
+    def update_channel(self,channel_log, Entry = False):
+        """Update an the channel log text field in an exsiting channel."""
+
+        if Entry:
+            self.text_field.config(state=NORMAL)   
+            post_entry = channel_log[0]+ ' : ' + channel_log[1]+ '\n'
+            self.text_field.insert(str(self.line_num),post_entry)
+            self.line_num += 1  
+            self.text_field.config(state=DISABLED)
+            return
+
         self.text_field.config(state=NORMAL)
         self.text_field.delete('0.0', END)
-        line_num = float(1.0)    
+        self.line_num = float(1.0)    
         for post in channel_log:
-            post_entry = post[0]+ ' - ' + post[1]+': '+ post[2] + '\n'
-            self.text_field.insert(str(line_num),post_entry)
-            line_num = line_num + 1        
+            post_entry = post[0]+ ' : ' + post[1]+ '\n'
+            self.text_field.insert(str(self.line_num),post_entry)
+            self.line_num += 1  
+        self.text_field.config(state=DISABLED)    
 """
 ############################################################################################
 ############################################################################################

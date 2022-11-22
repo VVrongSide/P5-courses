@@ -1,4 +1,5 @@
 import pickle
+from cryptography import fernet
 
 class Client_DB(object):
 	
@@ -55,17 +56,24 @@ class Client_DB(object):
 		if |key=str| is defined it returns the column for the str
 		if |key=str| and |value=int| is defines, it returns a specific entry in the database 
 		"""
+		print("lookup: ", 1)
 		if (channel and key) is not None:
 			if channel not in self.dictionary[self.columns[0]]:
 				print(f'Channel: |{channel}| does not exist')
 			else:
 				index = self.dictionary[self.columns[0]].index(channel)
+				print("lookup: ", 2)
 				if last_entry:
+					print("lookup: ", 3)
 					return self.dictionary[key][index][-1:][0]
 				else:
-					return self.dictionary[key][index]
+					print("lookup: ", 4)
+					print(key,":_Key  Index:" ,index)
+					print(self.dictionary[key][index][0])
+					return self.dictionary[key][index][0]
 
 		elif channel is not None:
+			print("lookup: ", 5)
 			lookup = []
 			if channel not in self.dictionary[self.columns[0]]:
 				print(f'Channel: |{channel}| does not exist')

@@ -48,16 +48,14 @@ class UI_Session_Manager(threading.Thread):
 
 			event_createUser = self.event.wait(10)
 			if event_createUser:
+				print(self.queue)
 				for message in self.queue:
 					if message[0] == 'createUser':
+						index = self.queue.index(message)
+						ret = self.queue.pop(index)
 						self.event.clear()
-						return message[1]
-				return False
-			else:
-				return False
-
-			print("Create user: ", check)
-			return check[1]
+						print(ret)
+						return ret[1]
 		except:
 			return False
 
@@ -71,19 +69,24 @@ class UI_Session_Manager(threading.Thread):
 			sendlist = ["login",self.username,hashed]
 			logindata = pickle.dumps(sendlist,pickle.HIGHEST_PROTOCOL)
 			check = self.interface.send(logindata)
-			
+			print(1)
 			event_createUser = self.event.wait(10)
+			print(2)
 			if event_createUser:
+				print(3)
 				for message in self.queue:
+					print(message)
 					if message[0] == 'login':
 						self.event.clear()
 						if message[1]:
-							for channelname in message[2]:
+							index = self.queue.index(message)
+							ret = self.queue.pop(index)
+							for channelname in ret[2]:
 								Channel = UI_Channel_Manager(self.clientDB, channelname)
 								Channel.Lookup()
-								print("Login: ", message)
+								print("Login: ", ret)
 								self.Channels.append([channelname,Channel])
-						return check[1], check[2]
+							return ret[1], ret[2]
 				return False
 			else:
 				return False
@@ -99,16 +102,17 @@ class UI_Session_Manager(threading.Thread):
 		if event_createUser:
 			for message in self.queue:
 				if message[0] == 'createChannel' and message[1] == True:
+					index = self.queue.index(message)
+					ret = self.queue.pop(index)
 					self.event.clear()
 					Key = f.Fernet.generate_key()
 					Key = f.Fernet(Key)
-					Channel = UI_Channel_Manager(self.clientDB, str(NameOfChannel), Key)
+					Channel = UI_Channel_Manager(self.clientDB, str(NameOfChannel),Key)
 					Channel.Howtosavealife()
-					self.Channels.append([NameOfChannel,Channel])
-					return message[1]
-			return false
+					return ret[1]
+			return False
 		else:
-			return false
+			return False
 
 	def joinChannel(self, NameOfChannel):
 		try:
@@ -119,15 +123,16 @@ class UI_Session_Manager(threading.Thread):
 			if event_createUser:
 				for message in self.queue:
 					if message[0] == 'createUser' and message[1]  == True:
+						ret = message
 						self.event.clear()
 
 						#! Indsæt P2P manager ting
 						Key = self.createP2PManager()
 
 
-						Channel = UI_Channel_Manager(self.clientDB, str(NameOfChannel), Key)
+						Channel = UI_Channel_Manager(self.clientDB, str(NameOfChannel),Key)
 						Channel.Howtosavealife()
-						self.Channels.append([NameOfChannel,Channel])
+						self.queue.pop(message)
 						return True
 				return False
 			else:
@@ -139,12 +144,18 @@ class UI_Session_Manager(threading.Thread):
 		Key = 'JabbatheHut'
 		return Key
 
-	def forwardMessage(self, message, channel):
+	def sendMessage(self, message, channel):
 		try:
+			print(1)
+			key = self.clientDB.lookup("Channel_key", channel, False)
+			print(key)
+			message = self.encryptMessage(key, message)
+			print(message)
 			sendlist = ["logEntry", channel, message]
+			print(sendlist)
 			sendlist = pickle.dumps(sendlist)
 			check = self.interface.send(sendlist)
-			return True
+			return
 		except:
 			return False
 	
@@ -152,12 +163,16 @@ class UI_Session_Manager(threading.Thread):
 		del self
 
 	def encryptMessage(self, key, message):
-		encMessage = key.encrypt(message)
+		print("encrypt")			
+		encMessage = key.encrypt(pickle.dumps(message))
+		print("encrypted")
 		return encMessage
 		
-	def decrypt(self, key, encmessage):
-		message = key.decrypt(encmessage)
-		return message
+	def decrypt(self, ret):
+		#! DUMPS måske
+		key = self.clientDB.lookup("Channel_key", ret[0], False)
+		ret[1][1] = pickle.loads(key.decrypt(ret[1][1]))
+		return ret[1][1]
 
 	def get_random_string(self, length):
 		# choose from all lowercase letter
@@ -180,51 +195,59 @@ class UI_Session_Manager(threading.Thread):
 		#!HER SKAL DER LAVES THREDING TING
 		#!HER SKAL DER LAVES THREDING TING
 		#!HER SKAL DER LAVES THREDING TING
+		while True:
+			res = self.interface.listen()
+			print("Receive function: ",res)
+			match res[0]:
+				case 'login':
+					if (res[1] == False):
+						self.password = ""
+						self.username = ""
+						self.loggedin = False
+						self.event.set()
+					else:
+						self.queue.append(res)
+						self.event.set()
 
-		res = self.interface.listen()
-		match res[0]:
-			case 'login':
-				if (res[1] == False):
-					self.password = ""
-					self.username = ""
-					self.loggedin = False
+				case 'createUser':
+					if (res[1] == False):
+						self.username = ""
+						self.password = ""
+						self.queue.append(res)
+						self.event.set()
+					else:
+						self.queue.append(res)
+						self.event.set()
+
+				case 'joinChannel':
+					if (res[1] == False):
+						self.queue.append(res)
+						self.event.set()
+					else:
+						self.queue.append(res)
+						self.event.set()
+
+				case 'createChannel':
+					if res[1] == False:
+						self.queue.append(res)
+						self.event.set()
+					else:
+						self.queue.append(res)
+						self.event.set()
+
+				case 'chatLog':
+					if res[1] == False:
+						self.queue.append(res)
+						self.event.set()
+					else:
+						self.queue.append(res)
+						self.event.set()
+
+				case 'logEntry':
+					self.queue.append(res)
+
+				case other:
 					return False
-				else:
-					self.queue.append(res)
-
-			case 'createUser':
-				if (res[1] == False):
-					self.username = ""
-					self.password = ""
-					self.queue.append(res)
-				else:
-					self.queue.append(res)
-					self.event.set()
-
-			case 'joinChannel':
-				if (res[1] == False):
-					self.queue.append(res)
-				else:
-					self.queue.append(res)
-					self.event.set()
-
-			case 'createChannel':
-				if res[1] == False:
-					self.queue.append(res)
-				else:
-					self.queue.append(res)
-
-			case 'chatLog':
-				if res[1] == False:
-					self.queue.append(res)
-				else:
-					self.queue.append(res)
-
-			case 'logEntry'
-				self.queue.append(res) 
-
-			case other:
-				return False
 			
 
 		
@@ -296,15 +319,12 @@ class connectionSocket:
 		self.port = port
 		self.host = "127.0.0.1"
 
-
 	def echo(self):
 		with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 			s.connect((self.host, self.port))
 			s.sendall(b"Hello, world")
 			data = s.recv(1024)
 		print(f"Received {data!r}")
-
-
 
 def testclient(session):
 	client.createUser("mads", "dinmor")
