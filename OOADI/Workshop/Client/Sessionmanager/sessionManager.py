@@ -125,14 +125,14 @@ class UI_Session_Manager(threading.Thread):
 			if event_createUser:
 				for message in self.queue:
 					if message[0] == 'createUser' and message[1]  == True:
-						ret = message
+						index = self.queue.index(message)
+						self.queue.pop(index)
 						self.event.clear()
 
 						Key = self.P2Preceive(NameOfChannel)
 
 						Channel = UI_Channel_Manager(self.clientDB, str(NameOfChannel),Key)
 						Channel.Howtosavealife()
-						self.queue.pop(message)
 						return True
 				return False
 			else:
@@ -144,7 +144,7 @@ class UI_Session_Manager(threading.Thread):
 
 		key = self.clientDB.lookup("Channel_key", channel, False)
 		self.p2p.Sending(private, public, key)
-		return True
+		return
 
 	def P2Preceive(self, channel):
 		sendlist = ["p2p", channel]
@@ -254,6 +254,9 @@ class UI_Session_Manager(threading.Thread):
 
 				case 'logEntry':
 					self.queue.append(res)
+
+				case 'p2pRequest':
+					self.P2Psend(res[1], res[2], res[3])
 
 				case other:
 					return False
