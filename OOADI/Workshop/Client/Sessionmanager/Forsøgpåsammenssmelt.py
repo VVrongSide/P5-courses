@@ -249,7 +249,7 @@ class TabGUI(Tk):
 
                             ret[1][1] = self.SM.decrypt(ret)
 
-                            tab_object.update_channel(ret[1],True)
+                            tab_object.update_channel(ret[1],Entry=True)
             time.sleep(1)  
         #    
         # for index in update:
@@ -319,7 +319,7 @@ class Channel(Frame):
         self.parent.notebook.insert(0, self.frame, text=self.name)
 
 
-    def update_channel(self,channel_log,ChannelName, Entry = False):
+    def update_channel(self,channel_log, ChannelName = None, Entry = False):
         """Update an the channel log text field in an exsiting channel."""
 
         if Entry:
