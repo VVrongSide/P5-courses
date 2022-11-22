@@ -10,9 +10,10 @@ class p2pClass:
 		self.HOST = "nisker.win"
 		self.PORT = 65433
 		self.BUFFER_SIZE = 1024
-
+		self.event = threading.Event()
 
 	def Receiving(self):
+		self.key = ''
 		self.p2pSock = self.sockSetup()
 		self.p2pSock.connect(("nisker.win", 65433))
 		self.p2pConnected = False
@@ -27,19 +28,22 @@ class p2pClass:
 		thread2 = threading.Thread(target=self.ReceiveKey, args=(pub_addr, local_addr, ))
 		thread2.start()
 		self.p2pSock.close()
+		self.event.wait(20)
+		self.event.clear()
+		return self.key
 
 
 
 
-	def Sending(self, target_priv, target_pub):
+	def Sending(self, target_priv, target_pub, key):
 		self.p2pSock = self.sockSetup()
 		self.p2pSock.connect(("nisker.win", 65433))
 		self.p2pConnected = False
 		local_addr = self.p2pSock.getsockname()
 		self.p2pSock.send(pickle.dumps(local_addr))
 		self.p2pSock.close()
-		thread1 = threading.Thread(target=self.SendKey, args=(target_priv, local_addr ))
-		thread2 = threading.Thread(target=self.SendKey, args=(target_pub, local_addr ))
+		thread1 = threading.Thread(target=self.SendKey, args=(target_priv, local_addr, key,))
+		thread2 = threading.Thread(target=self.SendKey, args=(target_pub, local_addr, key, ))
 		thread1.start()
 		thread2.start()
 
@@ -69,9 +73,9 @@ class p2pClass:
 			while True:
 				try:
 					print("Trying to get key")
-					key = s1.recv(self.BUFFER_SIZE)
-					print("I got the key!: ",pickle.loads(key))
-					s1.send(pickle.dumps('Succesfully received'))
+					self.key = s1.recv(self.BUFFER_SIZE)
+					print("I got the key!: ",pickle.loads(self.key))
+					self.event.set()
 					break
 				except:
 					continue
@@ -108,8 +112,6 @@ class p2pClass:
 				try:
 					s1.send(pickle.dumps(key))
 					print("I sent")
-					recvdata = s1.recv(self.BUFFER_SIZE)
-					print(pickle.loads(recvdata))
 					break
 				except:
 					continue
