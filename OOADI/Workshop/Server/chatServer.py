@@ -72,7 +72,7 @@ class chatServer(threading.Thread):
 
 
 	############# Create a user in the accountDB ##########
-	def createUser(self, Username, Password):
+	def createUser(self, Username, Password, userIndex):
 		# Load the pickled account object
 		with open(self.accountDB_fn, "rb") as pickle_file:
 			accountDB = pickle.load(pickle_file)
@@ -82,6 +82,8 @@ class chatServer(threading.Thread):
 		if ret:
 			with open(self.accountDB_fn, "wb") as pickle_file:
 				pickle.dump(accountDB, pickle_file)
+			self.onlineUsers["Username"][userIndex] = Username
+			print(self.onlineUsers)
 		return ret
 		
 
@@ -95,9 +97,10 @@ class chatServer(threading.Thread):
 		if ret:
 			self.onlineUsers["Username"][userIndex] = Username
 			print(self.onlineUsers)
+			return [ret, accountDB.memberOfChannels(Username)]
 
 		# Return whether the login was succesful or not
-		return ret
+		return [ret]
 		
 	
 	########### associate a channel with a user in the accountDB ###########
@@ -159,6 +162,8 @@ class chatServer(threading.Thread):
 		return ret
 
 
+
+
 ########## Get chatlog from channel ###############
 	def getLog(self, Channel_name, lastEntry=True):
 
@@ -185,7 +190,7 @@ class chatServer(threading.Thread):
 
 
 ########### Write an entry in a chatlog ###########
-	def logEntry(self, Channel_name, msg):
+	def logEntry(self, Channel_name, Username, msg):
 		# Load the pickled channelDB object
 		with open(self.ChannelDB_fn, "rb") as pickle_file:
 			ChannelDB = pickle.load(pickle_file)
@@ -196,6 +201,17 @@ class chatServer(threading.Thread):
 		# Write the modified channel object to a pickled file
 		with open(self.ChannelDB_fn, "wb") as pickle_file:
 			pickle.dump(ChannelDB, pickle_file)
+
+		members = self.getMembers(Channel_name)
+		sendmsg = ['logEntry', Channel_name, [Username, msg]]
+		for i in members:
+			print(i)
+			if i in self.onlineUsers["Username"]:
+				print(i)
+				connIndex = self.onlineUsers["Username"].index(i)
+				self.connections[connIndex][0].send(pickle.dumps(sendmsg))
+		
+
 
 
 
@@ -209,21 +225,21 @@ class chatServer(threading.Thread):
 				case "login":
 					return self.accountLogin(datarecv[1], datarecv[2],userIndex)  ### inputs(Username, Password, userIndex)
 				case "createUser":
-					return self.createUser(datarecv[1], datarecv[2]) ### inputs(Username, Password)
+					return [self.createUser(datarecv[1], datarecv[2], userIndex)] ### inputs(Username, Password)
 				case "joinChannel":
-					return self.associateUser(username, datarecv[1]) ### inputs(Username,Channel_name)
+					return [self.associateUser(username, datarecv[1])] ### inputs(Username,Channel_name)
 				case "createChannel":
-					return self.createChannel(username, datarecv[1]) ### inputs(Username, Channel_name)
+					return [self.createChannel(username, datarecv[1])] ### inputs(Username, Channel_name)
 				case "lastChat":
-					return self.getLog(datarecv[1]) ### inputs(Channel_name)
+					return [self.getLog(datarecv[1])] ### inputs(Channel_name)
 				case "chatLog":
-					return self.getLog(datarecv[1], lastEntry=False) ### input(Channel_name)
+					return [self.getLog(datarecv[1], lastEntry=False)] ### input(Channel_name)
 				case "logEntry":
-					return self.logEntry(datarecv[1], datarecv[2]) ###Input(Channel_name, msg)
+					return [self.logEntry(datarecv[1], username, datarecv[2])] ###Input(Channel_name, msg)
 				case _:
-					return "Invalid request type"
+					return ["Invalid request type"]
 		except:
-			return False
+			return [False]
 
 
 ############## Handles the individual connections with clients (Started as thread for single client) ##################
@@ -239,17 +255,14 @@ class chatServer(threading.Thread):
 				recv_data = pickle.loads(recv_string)
 				clientIndex = self.onlineUsers["ipAddress"].index(ipaddress)
 			except:
-				# If alivecheck has been sent and nothing was received (timeout) break loop and close connection
-				clientIndex = self.onlineUsers["ipAddress"].index(ipaddress)
-				if self.connections[clientIndex][1] == 0:
-					break
 				continue
 
+			"""
 			# If the alivecheck has been sent and a alive was received, tell this to shared variable.
 			if recv_data[0] == 'alive':
 				self.connections[clientIndex][1] = 1
-				continue
-
+				continue """
+			print(recv_data)
 			if recv_data[0] == 'p2p':
 				tp = threading.Thread(target=self.p2pHandler, args=(recv_data[1], self.onlineUsers["Username"][clientIndex], ))
 				tp.start()
@@ -262,9 +275,18 @@ class chatServer(threading.Thread):
 			# If bye signal was sent from client, break loop and close connection
 			if recv_data[0] == 'BYE':
 				break
+			
 
 			returnVal = self.recieveData(recv_data,ipaddress)
-			sendData = [recv_data[0], returnVal]
+			
+			if recv_data[0] == 'logEntry':
+				continue
+
+			sendData = [recv_data[0]]
+			for i in returnVal:
+				sendData.append(i)
+
+			
 			connection.sendall(pickle.dumps(sendData))
 			
 		
@@ -274,6 +296,7 @@ class chatServer(threading.Thread):
 		sys.exit()
 
 
+	"""
 ###################### CHECK CONNECTION STATUS ############################
 	def aliveChecker(self):
 		while True:
@@ -294,7 +317,7 @@ class chatServer(threading.Thread):
 						# Set alive status to 0 in case of timeout, since this means no connection to user
 						self.connections[connIndex][1] = 0
 				sleep(1)
-
+	"""
 
 
 ################### Peer 2 Peer handling ######################
@@ -353,8 +376,8 @@ class chatServer(threading.Thread):
 	def run(self):
 		# Listen for connections on the socket
 		self.serverSocket.listen(1)
-		t = threading.Thread(target=self.aliveChecker)
-		t.start()
+		#t = threading.Thread(target=self.aliveChecker)
+		#t.start()
 		while True:
 			# Accept new connections to the server
 			sessionSocket, sessionAddress = self.serverSocket.accept()
@@ -371,4 +394,5 @@ class chatServer(threading.Thread):
 if __name__=="__main__":
 	# Initiate the class
 	chatserver = chatServer()
+
 

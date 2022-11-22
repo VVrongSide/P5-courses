@@ -128,7 +128,7 @@ class TabGUI(Tk):
         self.title('Encrypted chat')
         self.notebook = ttk.Notebook(self)
         self.default_tab = self.add_default_tab()
-        self.channel_names = ['comtek2022','Secret'] #! EDIT!!!
+        self.channel_names = [] #! EDIT!!!
         self.tab_names = {}
     
     def run(self):

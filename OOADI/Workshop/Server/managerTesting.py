@@ -17,29 +17,33 @@ class SendData(threading.Thread):
 
 
 	def run(self):
-		while True:
-			send_data = input('What to Do?: ')
-			if send_data == "BYE":
-				chat_data=[send_data]
+		try:
+			while True:
+				send_data = input('What to Do?: ')
+				if send_data == "BYE":
+					chat_data=[send_data]
+					chat_string = pickle.dumps(chat_data)
+					self.ds.send(chat_string)
+					print("Connection closed.")
+					break
+
+				else:
+					chat_data = [send_data]
+				
+				while True:
+					send_data = input('Input your data: ')
+					if send_data == "endmsg":	
+						break
+					
+					else:
+						chat_data.append(send_data)
+
+				
 				chat_string = pickle.dumps(chat_data)
 				self.ds.send(chat_string)
-				print("Connection closed.")
-				break
-
-			else:
-				chat_data = [send_data]
-			
-			while True:
-				send_data = input('Input your data: ')
-				if send_data == "endmsg":	
-					break
-				
-				else:
-					chat_data.append(send_data)
-
-			
-			chat_string = pickle.dumps(chat_data)
-			self.ds.send(chat_string)
+		except KeyboardInterrupt:
+			send_data = ['BYE']
+			self.ds.send(pickle.dumps(send_data))
 
 	def addr_to_msg(self, addr):
 		return '{}:{}'.format(addr[0], str(addr[1]))
@@ -91,13 +95,14 @@ class ReceiveData(threading.Thread):
 				continue
 			
 			print(recv_data)
+		
 
-	def ReceiveKey(self, first=True, addr = None):
-		local_addr = self.p2pSock.getsockname()
+	def ReceiveKey(self, first=True, addr = None, local_addr=None):
 		
 		print("In receive key")
-		print(local_addr)
 		if first:
+			local_addr = self.p2pSock.getsockname()
+			print(local_addr)
 			self.p2pSock.send(pickle.dumps(local_addr))
 			print("Sended")
 			recv_data = self.p2pSock.recv(BUFFER_SIZE)
@@ -105,7 +110,7 @@ class ReceiveData(threading.Thread):
 			recv_list = pickle.loads(recv_data)
 			addr = recv_list[0]
 			print("Addr 1", addr)
-			thread1 = threading.Thread(target=self.ReceiveKey, args=(False, addr, ))
+			thread1 = threading.Thread(target=self.ReceiveKey, args=(False, addr, local_addr, ))
 			thread1.start()
 			addr = recv_list[1]
 			print("Addr 2", addr)
