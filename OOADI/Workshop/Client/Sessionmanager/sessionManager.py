@@ -87,8 +87,6 @@ class UI_Session_Manager(threading.Thread):
 								Channel = UI_Channel_Manager(self.clientDB, channelname)
 								Channel.Lookup()
 								print("Login: ", ret)
-								self.Channels.append([channelname,Channel])
-								print(ret)
 							return ret[1], ret[2]
 				return False
 			else:
