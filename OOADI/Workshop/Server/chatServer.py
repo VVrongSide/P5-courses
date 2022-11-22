@@ -190,7 +190,7 @@ class chatServer(threading.Thread):
 
 
 ########### Write an entry in a chatlog ###########
-	def logEntry(self, Channel_name, msg):
+	def logEntry(self, Channel_name, Username, msg):
 		# Load the pickled channelDB object
 		with open(self.ChannelDB_fn, "rb") as pickle_file:
 			ChannelDB = pickle.load(pickle_file)
@@ -203,7 +203,7 @@ class chatServer(threading.Thread):
 			pickle.dump(ChannelDB, pickle_file)
 
 		members = self.getMembers(Channel_name)
-		sendmsg = ['logEntry', Channel_name, msg]
+		sendmsg = ['logEntry', Channel_name, [Username, msg]]
 		for i in members:
 			print(i)
 			if i in self.onlineUsers["Username"]:
