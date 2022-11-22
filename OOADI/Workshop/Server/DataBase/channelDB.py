@@ -50,12 +50,12 @@ class Channel_DB(object):
 				print(f'Asoociated |{Account}| to |{Channel_name}| members')
 				return True
 	
-	def logEntry(self, Channel_name, msg):
+	def logEntry(self, Channel_name, username, msg):
 		if Channel_name not in self.dictionary['Channel_name']:
 			print(f'Channel: |{Channel_name}| does not exist')
 		else:
 			index = self.dictionary['Channel_name'].index(Channel_name)
-			self.dictionary['Channel_log'][index].append(msg)
+			self.dictionary['Channel_log'][index].append([username, msg])
 			print(f'Log entry into Channel: |{Channel_name}| succesful')
 
 	def lookup(self, key=None, channel=None, last_entry=True):
