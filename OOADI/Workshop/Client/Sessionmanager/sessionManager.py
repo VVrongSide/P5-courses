@@ -153,7 +153,7 @@ class UI_Session_Manager(threading.Thread):
 				if message[0] == 'chatLog':
 					index = self.queue.index(message)
 					ret = self.queue.pop(index)
-					ret = self.decrypt(ret)
+					# ret = self.decrypt(ret)
 					self.event.clear()
 					return ret[1]
 
@@ -204,10 +204,12 @@ class UI_Session_Manager(threading.Thread):
 
 		if Log:
 			key = self.clientDB.lookup("Channel_key", channel, False)
+			key = pickle.loads(key)
 			ret[1] =  pickle.loads(key.decrypt(ret[1]))
 			return ret
 		else:
 			key = self.clientDB.lookup("Channel_key", ret[0], False)
+			key = pickle.loads(key)
 			ret[1][1] = pickle.loads(key.decrypt(ret[1][1]))
 			return ret[1][1]
 
