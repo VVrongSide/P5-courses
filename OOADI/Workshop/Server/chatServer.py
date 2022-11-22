@@ -196,7 +196,7 @@ class chatServer(threading.Thread):
 			ChannelDB = pickle.load(pickle_file)
 		
 		# Add the entry using the logEntry method from the channelDB
-		ChannelDB.logEntry(Channel_name, msg)
+		ChannelDB.logEntry(Channel_name, Username, msg)
 
 		# Write the modified channel object to a pickled file
 		with open(self.ChannelDB_fn, "wb") as pickle_file:
