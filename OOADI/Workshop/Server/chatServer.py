@@ -177,6 +177,7 @@ class chatServer(threading.Thread):
 		connection = self.connections[index][0]
 		for entry in logs:
 			sendlist = ['logEntry', Channel_name, entry]
+			print(f'Sending: {sendlist}')
 			connection.sendall(pickle.dumps(sendlist))
 		return None
 
@@ -279,7 +280,7 @@ class chatServer(threading.Thread):
 
 			returnVal = self.recieveData(recv_data,ipaddress)
 			
-			if returnVal == None:
+			if (recv_data[0] == 'logEntry') or (recv_data[0] == 'chatLog'):
 				continue
 
 			sendData = [recv_data[0]]
