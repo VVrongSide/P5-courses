@@ -146,6 +146,7 @@ class UI_Session_Manager(threading.Thread):
 		sendList = ["chatLog", Channel]
 		sendList = pickle.dumps(sendList)
 		self.interface.send(sendList)
+		"""
 		event_update = self.event.wait(10)
 		if event_update:
 			for message in self.queue:
@@ -155,6 +156,7 @@ class UI_Session_Manager(threading.Thread):
 					# ret = self.decrypt(ret)
 					self.event.clear()
 					return ret[1]
+		"""
 
 
 		

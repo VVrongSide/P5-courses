@@ -203,8 +203,8 @@ class TabGUI(Tk):
             tab_names = [self.notebook.tab(i, option="text") for i in self.notebook.tabs()]     
             self.tab_names[tab_names[0]] = chat
             self.label_error.config(text="Succes!", fg="blue")
-            ret = self.SM.updateChannel(invite_code)
-            chat.update_channel(ret, invite_code)
+            self.SM.updateChannel(invite_code)
+            #chat.update_channel(ret, invite_code)
         else:
             self.label_error.config(text="Invalied invitation code!", fg="red")
         
