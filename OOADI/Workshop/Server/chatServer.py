@@ -204,6 +204,7 @@ class chatServer(threading.Thread):
 		ChannelDB.logEntry(Channel_name, Username, msg)
 
 		lineNumber = ChannelDB.getLineNumber(Channel_name)
+		print(lineNumber)
 		# Write the modified channel object to a pickled file
 		with open(self.ChannelDB_fn, "wb") as pickle_file:
 			pickle.dump(ChannelDB, pickle_file)
