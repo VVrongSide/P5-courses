@@ -165,7 +165,7 @@ class chatServer(threading.Thread):
 
 
 ########## Get chatlog from channel ###############
-	def getLog(self, Channel_name, username):
+	def getLog(self, Channel_name, ipaddress):
 
 		# Load the Pickled channelDB object		
 		with open(self.ChannelDB_fn, "rb") as pickle_file:
@@ -174,13 +174,12 @@ class chatServer(threading.Thread):
 		print('I be here')
 		logs = ChannelDB.lookup(ChannelDB.columns[2], Channel_name, False)
 		print('I am here 2')
-		index = self.onlineUsers["Username"].index(username)
-		connection = self.connections[index][0]
 		print(logs)
 		for entry in logs:
 			sendlist = ['logEntry', Channel_name, entry]
 			print(f'Sending: {sendlist}')
-			connection.sendall(pickle.dumps(sendlist))
+			index = self.onlineUsers["ipAddress"].index(ipaddress)
+			self.connections[index][0].sendall(pickle.dumps(sendlist))
 		return None
 
 
@@ -238,7 +237,7 @@ class chatServer(threading.Thread):
 				case "createChannel":
 					return [self.createChannel(username, datarecv[1])] ### inputs(Username, Channel_name)
 				case "chatLog":
-					return [self.getLog(datarecv[1], userIndex)] ### input(Channel_name)
+					return [self.getLog(datarecv[1], ipaddress)] ### input(Channel_name)
 				case "logEntry":
 					return [self.logEntry(datarecv[1], username, datarecv[2])] ###Input(Channel_name, msg)
 				case _:
