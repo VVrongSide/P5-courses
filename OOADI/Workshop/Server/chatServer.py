@@ -179,7 +179,8 @@ class chatServer(threading.Thread):
 			sendlist = ['logEntry', Channel_name, entry]
 			print(f'Sending: {sendlist}')
 			index = self.onlineUsers["ipAddress"].index(ipaddress)
-			self.connections[index][0].send(pickle.dumps(sendlist))
+			self.connections[index][0].sendall(pickle.dumps(sendlist))
+			sleep(100/1000)
 		return None
 
 
