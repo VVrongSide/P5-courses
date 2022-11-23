@@ -328,7 +328,7 @@ class Channel(Frame):
         if Entry:
             self.text_field.config(state=NORMAL)   
             post_entry = channel_log[0]+ ' : ' + channel_log[1]+ '\n'
-            self.text_field.insert(str(channel_log[1]),post_entry)
+            self.text_field.insert(channel_log[2],post_entry)
             #self.line_num += 1  
             self.text_field.config(state=DISABLED)
             return
