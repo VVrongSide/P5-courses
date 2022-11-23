@@ -171,7 +171,7 @@ class chatServer(threading.Thread):
 		with open(self.ChannelDB_fn, "rb") as pickle_file:
 			ChannelDB = pickle.load(pickle_file)
 
-	
+		print('I be here')
 		logs = ChannelDB.lookup(ChannelDB.columns[2], Channel_name, False)
 		index = self.onlineUsers["Username"].index(username)
 		connection = self.connections[index][0]
