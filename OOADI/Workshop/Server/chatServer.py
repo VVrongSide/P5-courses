@@ -175,6 +175,7 @@ class chatServer(threading.Thread):
 		logs = ChannelDB.lookup(ChannelDB.columns[2], Channel_name, False)
 		index = self.onlineUsers["Username"].index(username)
 		connection = self.connections[index][0]
+		print(logs)
 		for entry in logs:
 			sendlist = ['logEntry', Channel_name, entry]
 			print(f'Sending: {sendlist}')
