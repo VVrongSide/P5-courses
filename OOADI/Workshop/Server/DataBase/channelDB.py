@@ -61,7 +61,7 @@ class Channel_DB(object):
 	
 	def getLineNumber(self, Channel_name):
 		index = self.dictionary['Channel_name'].index(Channel_name)
-		return self.dictionary['Channel_log'][index][-1:][0][3]
+		return len(self.dictionary['Channel_log'][index]) + 1
 
 
 	def lookup(self, key=None, channel=None, last_entry=True):
