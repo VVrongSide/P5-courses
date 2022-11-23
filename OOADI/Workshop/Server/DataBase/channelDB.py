@@ -72,7 +72,7 @@ class Channel_DB(object):
 				if last_entry:
 					return self.dictionary[key][index][-1:][0]
 				else:
-					return self.dictionary[key][index]
+					return self.dictionary[key][index][0]
 
 		elif channel is not None:
 			lookup = []
