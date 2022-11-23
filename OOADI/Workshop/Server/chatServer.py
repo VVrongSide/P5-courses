@@ -165,18 +165,20 @@ class chatServer(threading.Thread):
 
 
 ########## Get chatlog from channel ###############
-	def getLog(self, Channel_name, lastEntry=True):
+	def getLog(self, Channel_name, username):
 
 		# Load the Pickled channelDB object		
 		with open(self.ChannelDB_fn, "rb") as pickle_file:
 			ChannelDB = pickle.load(pickle_file)
 
-		# If lastentry is true, will only return the last message in the chatlog
-		if lastEntry:
-			return ChannelDB.lookup(ChannelDB.columns[2], Channel_name)
-		# Else return the entire chat log for the channel
-		else: 
-			return ChannelDB.lookup(ChannelDB.columns[2], Channel_name, False)
+	
+		logs = ChannelDB.lookup(ChannelDB.columns[2], Channel_name, False)
+		index = self.onlineUsers["Username"].index(username)
+		connection = self.connections[index][0]
+		for entry in logs:
+			sendlist = ['logEntry', Channel_name, entry]
+			connection.sendall(pickle.dumps(sendlist))
+		return None
 
 
 ########## Get member list of channel #############
@@ -211,6 +213,8 @@ class chatServer(threading.Thread):
 				connIndex = self.onlineUsers["Username"].index(i)
 				self.connections[connIndex][0].sendall(pickle.dumps(sendmsg))
 		
+		return None
+		
 
 
 
@@ -230,10 +234,8 @@ class chatServer(threading.Thread):
 					return [self.associateUser(username, datarecv[1])] ### inputs(Username,Channel_name)
 				case "createChannel":
 					return [self.createChannel(username, datarecv[1])] ### inputs(Username, Channel_name)
-				case "lastChat":
-					return [self.getLog(datarecv[1])] ### inputs(Channel_name)
 				case "chatLog":
-					return [self.getLog(datarecv[1], lastEntry=False)] ### input(Channel_name)
+					return [self.getLog(datarecv[1], userIndex)] ### input(Channel_name)
 				case "logEntry":
 					return [self.logEntry(datarecv[1], username, datarecv[2])] ###Input(Channel_name, msg)
 				case _:
@@ -277,7 +279,7 @@ class chatServer(threading.Thread):
 
 			returnVal = self.recieveData(recv_data,ipaddress)
 			
-			if recv_data[0] == 'logEntry':
+			if returnVal == None:
 				continue
 
 			sendData = [recv_data[0]]
