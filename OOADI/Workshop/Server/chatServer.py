@@ -173,6 +173,7 @@ class chatServer(threading.Thread):
 
 		print('I be here')
 		logs = ChannelDB.lookup(ChannelDB.columns[2], Channel_name, False)
+		print('I am here 2')
 		index = self.onlineUsers["Username"].index(username)
 		connection = self.connections[index][0]
 		print(logs)
