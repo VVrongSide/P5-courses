@@ -147,8 +147,8 @@ class TabGUI(Tk):
                 tab_names = [self.notebook.tab(i, option="text") for i in self.notebook.tabs()]     # Retieves the names of all tabs.
                 self.tab_names[tab_names[0]] = chat # Connects a tab name to a Channel intance in a dictionaries
                 
-                ret = self.SM.updateChannel(name)
-                chat.update_channel(ret, name)
+                self.SM.updateChannel(name)
+                #chat.update_channel(ret, name)
                  
         time.sleep(1)
         t1 = threading.Thread(target=self.__recieve_msg)
