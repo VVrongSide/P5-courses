@@ -203,12 +203,14 @@ class chatServer(threading.Thread):
 		# Add the entry using the logEntry method from the channelDB
 		ChannelDB.logEntry(Channel_name, Username, msg)
 
+		lineNumber = ChannelDB.getLineNumber(Channel_name)
 		# Write the modified channel object to a pickled file
 		with open(self.ChannelDB_fn, "wb") as pickle_file:
 			pickle.dump(ChannelDB, pickle_file)
 
+		
 		members = self.getMembers(Channel_name)
-		sendmsg = ['logEntry', Channel_name, [Username, msg]]
+		sendmsg = ['logEntry', Channel_name, [Username, msg, lineNumber]]
 		for i in members:
 			print(i)
 			if i in self.onlineUsers["Username"]:

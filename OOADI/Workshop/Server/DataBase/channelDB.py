@@ -55,8 +55,14 @@ class Channel_DB(object):
 			print(f'Channel: |{Channel_name}| does not exist')
 		else:
 			index = self.dictionary['Channel_name'].index(Channel_name)
-			self.dictionary['Channel_log'][index].append([username, msg])
+			line_number = len(self.dictionary['Channel_log'][index])
+			self.dictionary['Channel_log'][index].append([username, msg, line_number+1])
 			print(f'Log entry into Channel: |{Channel_name}| succesful')
+	
+	def getLineNumber(self, Channel_name):
+		index = self.dictionary['Channel_name'].index(Channel_name)
+		return self.dictionary['Channel_log'][index][-1:][0][3]
+
 
 	def lookup(self, key=None, channel=None, last_entry=True):
 		"""
