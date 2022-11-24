@@ -28,9 +28,13 @@ class p2pClass:
 		thread2 = threading.Thread(target=self.ReceiveKey, args=(pub_addr, local_addr, ))
 		thread2.start()
 		self.p2pSock.close()
-		self.event.wait(20)
-		self.event.clear()
-		return self.key
+		if self.event.wait(20):
+			self.event.clear()
+			return self.key
+		else:
+			return None
+
+		
 
 
 
@@ -64,7 +68,10 @@ class p2pClass:
 				s1.connect(addr)
 				thisAddr = True
 				self.p2pConnected = True
-			except:
+			except TimeoutError:
+				s1.close()
+				sys.exit()
+			except Exception:
 				continue
 			print(f'connected from {local_addr} to {addr} success!')
 
@@ -77,7 +84,10 @@ class p2pClass:
 					print("I got the key!: ",pickle.loads(self.key))
 					self.event.set()
 					break
-				except:
+				except TimeoutError:
+					s1.close()
+					sys.exit()
+				except Exception:
 					continue
 
 		# Close socket and exit thread

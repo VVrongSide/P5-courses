@@ -7,14 +7,13 @@ import threading
 from sessionManager import UI_Session_Manager as USM
 from sessionManager import UI_Channel_Manager as UCM
 import socket
-
-# Only for testing
 import time
 
-"""
+
+
 ############################################################################################
 ############################################################################################
-"""
+
 
 class MainGUI(Tk):
     """Main window of the encrypted chat program. 
@@ -76,15 +75,15 @@ class MainGUI(Tk):
             If False: Make an error prompt in the main window. 
         """   
         
-        self.username = self.entry_username.get()
+        username = self.entry_username.get()
         entered_password = self.entry_password.get()
         
-        check = self.USM.createUser(self.username, entered_password)
+        check = self.USM.createUser(username, entered_password)
         if check:
             self.destroy()
             tab = TabGUI(self.USM)
+            tab.mainloop()
             tab.run()
-            tab.mainloop() 
         else:                                                           
             self.label_error.config(text="Invalid username and/or password!", fg="red")
 
@@ -96,29 +95,24 @@ class MainGUI(Tk):
             If True: Close main window and opens a new window to manage all the channels.
             If False: Make an error prompt in the main window. 
         """
-        self.username = self.entry_username.get()
+        username = self.entry_username.get()
         entered_password = self.entry_password.get()
 
-        print(1)
-        check, channels = self.USM.login(self.username, entered_password)
-        print(2)
-        #! Create a socket connection to the server.
-        #! Verify in the database that the username and password is valid.
-        #! Returns a boolean regarding the result and a list with chats.
+        check, channels = self.USM.login(username, entered_password)
 
         if check:
-        #!  #####################################
+
             self.destroy()
             tab = TabGUI(self.USM, channels)  # Instance of TabGUI class
-            tab.run()       #! Pass list of channels here.
             tab.mainloop()  # Makes the GUI visible
-        else:                                                        
+            tab.run()       # Run the TabGUI run function
+        else:
             self.label_error.config(text="Invalied username and/or password!", fg="red")
 
-"""
+
 ############################################################################################
 ############################################################################################
-"""
+
 
 class TabGUI(Tk):
     """Window with tabs to manage new and existing chats.  
@@ -127,7 +121,7 @@ class TabGUI(Tk):
     """
     def __init__(self, SM, channels=[]):
         super().__init__()
-        #self.rootTab = tk.Tk()
+
         self.SM = SM
         self.geometry('800x600')
         self.title('Encrypted chat')
@@ -140,19 +134,19 @@ class TabGUI(Tk):
         """Initialize a channel tab for every channel the user is a part of. 
         Starts a background thread which waits for server updates any connected channels. 
         """
+        t1 = threading.Thread(target=self.__recieve_msg)
+        t1.start()
+
         if len(self.channel_names) != 0:            # Verify if the user is part of any chats.
             for name in self.channel_names:         # Iterate the list
-                chat = Channel(self, name, self.SM)          # Create a Channel intance for every chat
+                chat = Channel(self, name, self.SM) # Create a Channel intance for every chat
                 chat.create_chat_tab()              # Fill the Channel intance with the chat
                 tab_names = [self.notebook.tab(i, option="text") for i in self.notebook.tabs()]     # Retieves the names of all tabs.
                 self.tab_names[tab_names[0]] = chat # Connects a tab name to a Channel intance in a dictionaries
                 
                 self.SM.updateChannel(name)
-                #chat.update_channel(ret, name)
-                 
-        time.sleep(1)
-        t1 = threading.Thread(target=self.__recieve_msg)
-        t1.start()
+
+        
 
 
         
@@ -194,17 +188,15 @@ class TabGUI(Tk):
             Accepted: Creates a new channel tab.
             Denied: Error prompt
         """      
-        self.entry_invite_code.delete(0, 'end')        
-        confirmation = self.SM.joinChannel(invite_code)
-        print(confirmation)
-        if confirmation == True:
+        self.entry_invite_code.delete(0, 'end')
+
+        if self.SM.joinChannel(invite_code):
             chat = Channel(self, invite_code, self.SM)  
             chat.create_chat_tab()
             tab_names = [self.notebook.tab(i, option="text") for i in self.notebook.tabs()]     
             self.tab_names[tab_names[0]] = chat
             self.label_error.config(text="Succes!", fg="blue")
             self.SM.updateChannel(invite_code)
-            #chat.update_channel(ret, invite_code)
         else:
             self.label_error.config(text="Invalied invitation code!", fg="red")
         
@@ -219,11 +211,9 @@ class TabGUI(Tk):
             Accepted: Create a new tab for the channel.
             Denied: Error prompt in default tab.
         """
-        self.entry_invite_code.delete(0, 'end')        
-        #! Verify invite_code's uniqueness in database.
-        #! Create encryption token and store locally.
 
-        #! ###################################
+        self.entry_invite_code.delete(0, 'end')        
+
         if self.SM.createChannel(invite_code):
             chat = Channel(self, invite_code, self.SM)  
             chat.create_chat_tab()
@@ -252,23 +242,14 @@ class TabGUI(Tk):
 
                             ret[1][1] = self.SM.decrypt(ret)
 
-                            tab_object.update_channel(ret[1],Entry=True)
-            time.sleep(1)  
-        #    
-        # for index in update:
-        #     if index[0] in self.tab_names.keys():
-        #         tab_object = self.tab_names.get(index[0])
-        #         tab_object.update_channel(index[1])
-        # time.sleep(2)
-        # for index in update2:
-        #     if index[0] in self.tab_names.keys():
-        #         tab_object = self.tab_names.get(index[0])
-        #         tab_object.update_channel(index[1])
+                            tab_object.update_channel(ret[1])
+            time.sleep(10/1000)
 
-"""
+
+
 ############################################################################################
 ############################################################################################
-"""
+
 
 class Channel(Frame):
     """Channel class used to create channel tabs.
@@ -282,26 +263,18 @@ class Channel(Frame):
         self.name = name
         self.SM = session
 
+
     def __send_button(self, msg):
         """Encrypts the message and passes it on for transmission 
 
         Args:
             msg (string): 
         """
-        t = threading.Thread(target=self.__send_msg(msg))
+        t = threading.Thread(target=self.SM.sendMessage(msg, self.name))
         t.start()
         self.entry_chat_msg.delete(0, 'end')
 
 
-    def __send_msg(self, message):
-        """Connects and forward the encrypted message to the server.
-
-        Args:
-            CT_msg (string): Encrypted message 
-        """
-        print(message)
-        self.SM.sendMessage(message, self.name)
-        
 
     def create_chat_tab(self):
         """Fill the tab with a channel log text field and a text input field.
@@ -323,40 +296,19 @@ class Channel(Frame):
         
 
 
-    def update_channel(self,channel_log, ChannelName = None, Entry = False):
+    def update_channel(self, entry):
         """Update an the channel log text field in an exsiting channel."""
 
-        if Entry:
-            self.text_field.config(state=NORMAL)   
-            post_entry = channel_log[0]+ ' : ' + channel_log[1]+ '\n'
-            self.text_field.insert(str(channel_log[2])+'.0',post_entry)
-            #self.line_num += 1  
-            self.text_field.config(state=DISABLED)
-            return
-        """
-        else:
-            self.text_field.config(state=NORMAL)
-            self.text_field.delete('0.0', END)
-            self.line_num = float(1.0)    
-            for post in channel_log:
-                post = self.SM.decrypt(post, ChannelName, True)
-                post_entry = post[0]+ ' : ' + post[1]+ '\n'
-                self.text_field.insert(str(self.line_num),post_entry)
-                self.line_num += 1  
-            self.text_field.config(state=DISABLED)    
-        """
-"""
+        self.text_field.config(state=NORMAL)
+        post_entry = entry[0]+ ' : ' + entry[1]+ '\n'
+        self.text_field.insert(str(entry[2])+'.0',post_entry)
+        self.text_field.config(state=DISABLED)
+
 ############################################################################################
 ############################################################################################
-"""
+
 
 
 if __name__=="__main__":
-    C = ['Secret',[['07-11-2022 16:59', 'Anonymous', 'Its a secret!! Dont tell..']]]
-    A = ['comtek2022',[['25-08-22 14:20','Faur','Hvem ved hvad klokken er ??'],['25-08-22 14:23','Pure Genie','14:27 why ??'],['25-08-22 14:24','Wrongside','Mads?'],['25-08-22 14:26','SnooGiraffe','Bajer!!!!']]]
-    update = [C,A]
-    B = ['Secret',[['07-11-2022 16:59', 'Anonymous', 'Its a secret!! Dont tell..'],['07-11-2022 17:00', 'CIA', 'Dont mind, I already KNOW!! ;)']]]
-    # update2 = [B,A]
-
     main = MainGUI()
     main.mainloop()
