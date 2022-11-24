@@ -281,7 +281,6 @@ class Channel(Frame):
         self.parent = parent
         self.name = name
         self.SM = session
-        self.line_num = float(1.0)
 
     def __send_button(self, msg):
         """Encrypts the message and passes it on for transmission 
@@ -318,8 +317,10 @@ class Channel(Frame):
         # Frame 2 - Send button
         self.button_send_msg = Button(self.frame, text='Send',width=10, command=lambda: self.__send_button(self.entry_chat_msg.get()))
         self.button_send_msg.pack(side=LEFT, expand=1)
+
         self.frame.pack()
         self.parent.notebook.insert(0, self.frame, text=self.name)
+        
 
 
     def update_channel(self,channel_log, ChannelName = None, Entry = False):
@@ -328,7 +329,7 @@ class Channel(Frame):
         if Entry:
             self.text_field.config(state=NORMAL)   
             post_entry = channel_log[0]+ ' : ' + channel_log[1]+ '\n'
-            self.text_field.insert(channel_log[2],post_entry)
+            self.text_field.insert(str(channel_log[2])+'.0',post_entry)
             #self.line_num += 1  
             self.text_field.config(state=DISABLED)
             return
