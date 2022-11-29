@@ -1,28 +1,27 @@
 import socket
+import pickle
 
 class interface:
-    def __init__(self, hostip, port):
-        self.port = port
-        self.host = hostip
+    def __init__(self, socket):
+        self.port = 65432
+        self.host = "nisker.win"
+        self.BUFFER_SIZE = 8192
+        self.socket = socket
+        self.socket.connect((self.host, self.port))
 
     def send(self, message):
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.connect((self.host, self.port))
-            s.sendall(message)
-            data = s.recv(1024)
-            s.shutdown(socket.SHUT_RDWR)
-            s.close()
-            return data
+        try:
+            self.socket.send(message)
+        except:
+            print("failed to send")
+            return False
+
+
 
     def listen(self):
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.bind((self.host, self.port))
-            s.listen()
-            conn, addr = s.accept()
-            while True:
-                data = conn.recv(1024)
-                if not data:
-                    break
+        res = self.socket.recv(self.BUFFER_SIZE)
+        res = pickle.loads(res)
+        return res
 
     # def ipv6test(self):
     #     with socket.socket(socket.AF_INET6, socket.SOCK_STREAM) as s:
@@ -34,5 +33,7 @@ class interface:
 
 
 if __name__ == "__main__":
-    test = send(9999)
-    test.ipv6test()
+    i = interface()
+    i.send(b"hallo")
+    i.listen()
+
