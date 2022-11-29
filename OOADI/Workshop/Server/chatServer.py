@@ -265,11 +265,8 @@ class chatServer(threading.Thread):
 			except:
 				continue
 
-			"""
-			# If the alivecheck has been sent and a alive was received, tell this to shared variable.
-			if recv_data[0] == 'alive':
-				self.connections[clientIndex][1] = 1
-				continue """
+
+
 			print(recv_data)
 			if recv_data[0] == 'p2p':
 				tp = threading.Thread(target=self.p2pHandler, args=(recv_data[1], self.onlineUsers["Username"][clientIndex], ))
@@ -301,29 +298,6 @@ class chatServer(threading.Thread):
 		connection.close()
 		sys.exit()
 
-
-	"""
-###################### CHECK CONNECTION STATUS ############################
-	def aliveChecker(self):
-		while True:
-			# Iterate through the know ipAddresses
-			for addr in self.onlineUsers["ipAddress"]:
-				# Get index of ipAddress
-				connIndex = self.onlineUsers["ipAddress"].index(addr)
-
-				# Check the alive status of the connection
-				if self.connections[connIndex][1] == 1:
-
-					try:
-						# Send alive ping
-						self.connections[connIndex][0].send(pickle.dumps(self.aliveCheck))
-						# Set alive status to 0 to indicate an alivecheck has been sent
-						self.connections[connIndex][1] = 0
-					except socket.timeout:
-						# Set alive status to 0 in case of timeout, since this means no connection to user
-						self.connections[connIndex][1] = 0
-				sleep(1)
-	"""
 
 
 ################### Peer 2 Peer handling ######################
