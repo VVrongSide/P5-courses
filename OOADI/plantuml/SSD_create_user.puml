@@ -1,22 +1,27 @@
 @startuml
 hide footbox
-title Create user
 
-actor Client
-participant Server
+actor User
+participant GUI
+participant SessionManager
+participant chatServer
 
-Client -> Server : Username\npassword
-create database Users
-Server -> Users: Check if user exist
+User -> GUI: __**Input:**__\n(Username,Password)\n__**Click Button:**__\nCreate user
+GUI -> SessionManager : ['createUser',\nUsername,\nPassword]
+SessionManager -> chatServer: <color #0037ba>Interface.Send</color>(:\n['createUser',\nUsername,\nPassword])
+create database AccountDB
+chatServer -> AccountDB: <color #0037ba>createUser</color>(\nUsername, Password)
 group Authentication
 else <color #027a09>Successful</color>
-        Users -> Server: User does not exist
-        Server -> Server: Generate\nAccess token
-        Server -> Users: Create new user
-        Server -> Client: Access token\n associated with user
+        AccountDB -> chatServer:__**Return:**__\nTrue\n__**Print:**__\nUser {Username} was\nsuccesfully created'
+        chatServer -> SessionManager: <color #0037ba>connection.send</color>(\n['createUser', True])
+        SessionManager -> GUI: True
+        GUI -> GUI: __**Action:**__\nClose main window and opens\na new window to manage all chats
 
 else <color #990f00>Unsuccessful</color>
-        Users -> Server: User exists
-        Server -> Client: ERROR:\nUser already exists
+        AccountDB -> chatServer: __**Return:**__\nFalse\n__**Print:**__\n'{Username} already exist'
+        chatServer -> SessionManager: <color #0037ba>connection.send</color>(\n['createUser', False])
+        SessionManager -> GUI: False
+        GUI-> GUI: __**Display**__:\n'Invalied username and/or password!'
 end
 @enduml

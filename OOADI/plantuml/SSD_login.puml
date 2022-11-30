@@ -1,0 +1,29 @@
+@startuml
+hide footbox
+
+actor User
+participant GUI
+
+participant sessionManager
+participant chatServer
+
+User -> GUI: __**Input:**__\n(Username,Password)\n__**Click Button:**__\nLogin
+GUI -> sessionManager: ['login',Username,Password]
+sessionManager -> sessionManager: hashedPassword = <color #0037ba>hash</color>(Password+Salt)
+sessionManager -> chatServer: <color #0037ba>Interface.Send</color>(\n['login',Username,hashedPassword])
+create database AccountDB
+chatServer -> AccountDB: <color #0037ba>accountLogin</color>(\nUsername,hashedPassword)
+group Authentication
+else <color #027a09>Successful</color>
+        AccountDB -> chatServer: __**Return:**__\n[True,Channels]\n__**Print:**__\n'{Username}'s login was successful'
+        chatServer -> sessionManager: <color #0037ba>Connection.send</color>\n(['Login',True,Channels])
+        sessionManager -> sessionManager: __**Instantiate**__:\nChannel Manager for\neach Channel in Channels
+        sessionManager -> GUI: Channel_managers[]
+        GUI -> GUI: __**Instantiate**__:\n GUI-tab  for each\n Channel manager
+else <color #990f00>Unsuccessful</color>
+        AccountDB -> chatServer: __**Return:**__\n[False,None]\n__**Print:**__\n'{Username}'s login was unsuccessful' 
+        chatServer -> sessionManager: <color #0037ba>Connection.send</color>(\n['Login',False,None])
+        sessionManager -> GUI: False
+        GUI -> GUI: __**Display:**__\n'Unsuccessful Login'
+end
+@enduml

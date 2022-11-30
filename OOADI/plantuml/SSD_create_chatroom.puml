@@ -1,26 +1,31 @@
 @startuml
 hide footbox
-title Create channel
 
 actor User
-participant UI
-participant Session_Manager
-participant Server
+participant GUI
+participant sessionManager
+participant chatServer
 
-User -> UI: Input:\n ChannelName
-UI -> Session_Manager:Forward ChannelName
-Session_Manager-> Server:Forward ChannelName
-create database Channel_db
-Server -> Channel_db: Create Channel &\nAssociate User
+User -> GUI: __**Input:**__\n(ChannelName)\n__**Click Button:**__\nCreate Channel
+GUI -> sessionManager:['createChannel',ChannelName]
+sessionManager-> chatServer:<color #0037ba>Interface.send</color>(\n['createChannel',ChannelName])
+create database channelDB
+chatServer -> channelDB: <color #0037ba>createChannel</color>(\nAccount, ChannelName)
 group Authentication
 else <color #027a09>Successful</color>
-        Channel_db -> Server: ChannelID for created channel
-        Server -> Session_Manager: Forward:\n ChannelID
-        Session_Manager -> UI: ChannelID
+        channelDB -> chatServer: __**Return:**__\nTrue\n__**Print:**__\n'{ChannelName} created successfully'
+        chatServer -> sessionManager: <color #0037ba>connection.send</color>(\n['createChannel', True])
+        sessionManager -> sessionManager: __**Instantiate**__:\nencryptionKey object\nassociated with channel
+        sessionManager -> sessionManager: __**Instantiate**__:\nChannel Manager for\nnew channel
+        create database clientlDB
+        sessionManager -> clientlDB: <color #0037ba>createChannel</color>(\nChannelName, encryptionKey)
+        sessionManager -> GUI: Channel Manager
+        GUI -> GUI:  __**Instantiate**__:\n GUI-tab for\n Channel manager
 
 else <color #990f00>Unsuccessful</color>
-        Channel_db -> Server: Channel exists
-        Server -> Session_Manager: Forward:\nChannel already exists
-        Session_Manager -> UI: ERROR:\nChannel already exists
+        channelDB -> chatServer: __**Return:**__\nFalse\n__**Print:**__\n'{ChannelName} already exist'
+        chatServer -> sessionManager: <color #0037ba>connection.send</color>(\n['createChannel', False])
+        sessionManager -> GUI: False
+        GUI -> GUI: __**Display:**__\n'{ChannelName} already exists'
 end
 @enduml

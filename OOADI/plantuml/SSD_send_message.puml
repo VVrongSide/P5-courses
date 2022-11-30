@@ -1,0 +1,33 @@
+@startuml
+hide footbox
+
+actor User1
+participant GUI
+participant sessionManager
+participant chatServer
+
+
+User1 -> GUI : __**Input:**__\n(Message)\n__**Click Button:**__\nSend Message
+GUI -> sessionManager: ['logEntry',Message]
+sessionManager -> chatServer: <color #0037ba>Interface.send</color>(\n['logEntry',Message])
+create database channelDB
+chatServer -> channelDB: <color #0037ba>logEntry</color>(\nChannelName, Message)
+chatServer -> sessionManager: <color #0037ba>Connection.send</color>(\n['logEntry',Message])
+sessionManager -> chatServer: <color #0037ba>P2Preceive</color>(\n['p2p',ChannelName, user1_private_IP])
+chatServer -> chatServer: <color #0037ba>getMembers</color>(\nChannelName) 
+create participant User2_sessionManager
+chatServer -> User2_sessionManager: <color #0037ba>Connection.send</color>(\n['p2pRequest', user1_public_IP,\nuser1_private_IP,ChannelName])
+User2_sessionManager -> chatServer: <color #0037ba>p2p.send</color>(\n[user2_public_IP,\nuser2_private_IP])
+chatServer -> sessionManager: <color #0037ba>Connection.send</color>(\n[user2_public_IP,\nuser2_private_IP])
+sessionManager o<->o User2_sessionManager:\t\t\t\t\t\t\t\t**P2P Connection**
+User2_sessionManager -> sessionManager: <color #0037ba>p2p.Sending</color>(\nuser1_public_IP,\nuser1_private_IP, encryptionKey)
+create database clientlDB
+sessionManager -> clientlDB: <color #0037ba>createChannel</color>(\nChannelName, encryptionKey)
+sessionManager -> sessionManager: __**Instantiate**__:\nChannel Manager for\nnew channel
+sessionManager -> GUI: Channel Manager
+GUI -> GUI:  __**Instantiate**__:\n GUI-tab for\n Channel manager
+channelDB -> chatServer: __**Return:**__\nFalse\n__**Print:**__\n'{ChannelName} does not exist'
+chatServer -> sessionManager: <color #0037ba>connection.send</color>(\n['joinChannel', False])
+sessionManager -> GUI: False
+GUI -> GUI: __**Display:**__\n'{ChannelName} does not exist'
+@enduml

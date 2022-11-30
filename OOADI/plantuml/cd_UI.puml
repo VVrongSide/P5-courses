@@ -1,0 +1,43 @@
+@startuml
+class GUI-main{
+        Attributes
+        ..
+        -window-title: string
+        -window-size: integers
+}
+
+class GUI-window(GUI-main){
+        Methods
+        ..
+        -log-in(string):GUI-tab
+        -create-user(string):GUI-tab
+}
+
+"GUI-window(GUI-main)" "1 \n " -up-|> " 1 " "GUI-main"
+"GUI-main" -[hidden]down- "GUI-window(GUI-main)"
+"GUI-tab(GUI-main)" "1" -right-|> "1" "GUI-main"
+class GUI-tab(GUI-main){
+        Method
+        ..
+        -join-chat(string): Channel-tab
+        -create-chat(string): Channel-tab
+        -receive-message():string
+        -send-message(string):void
+}
+
+"GUI-tab(GUI-main)" "\n1 " o-down- " * " "Channel-tab"
+
+
+class Channel-tab{
+        Attributes
+        ..
+        -channel-name:string
+        --
+        Method
+        ..
+        -create-channel(string):Channel-tab
+        -update.channel(list): void
+}
+
+
+@enduml
