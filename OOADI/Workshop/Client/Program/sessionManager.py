@@ -187,17 +187,7 @@ class UI_Session_Manager(threading.Thread):
 		sendList = ["chatLog", Channel]
 		sendList = pickle.dumps(sendList)
 		self.interface.send(sendList)
-		"""
-		event_update = self.event.wait(10)
-		if event_update:
-				for message in self.queue:
-						if message[0] == 'chatLog':
-								index = self.queue.index(message)
-								ret = self.queue.pop(index)
-								# ret = self.decrypt(ret)
-								self.event.clear()
-								return ret[1]
-		"""
+	
 
 	def P2Psend(self, private, public, channel):
 		"""
@@ -359,24 +349,7 @@ class UI_Channel_Manager(UI_Session_Manager):
 		self.channelKey = Key
 		self.Client_DB_manager = clientDB
 
-	def updateLog(self):
-		"""
-		The updateLog method is used to update the chat whenever the user logs in or that a message is sent
-		"""		
-		try:
-			iSock.interface(host, port).send(pickle.dumps(['chatLog', self.channelName]))
-			event_createUser = self.event.wait(10)
-			if event_createUser:
-				for message in self.queue:
-					if message[0] == 'chatLog':
-						self.event.clear()
-						return message[1]
-				return False
-			else:
-				return False
-		except:
-			return False
-
+	
 	def saveChannelKey(self):
 		"""
 		The saveChannelKey method saves a channel key in a local database such that it can be retrieved when the user logs in.
