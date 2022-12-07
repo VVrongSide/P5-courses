@@ -22,7 +22,6 @@ class GUI-tab(GUI-main){
         -join-chat(string): Channel-tab
         -create-chat(string): Channel-tab
         -receive-message():string
-        -send-message(string):void
 }
 
 "GUI-tab(GUI-main)" "\n1 " o-down- " * " "Channel-tab"
@@ -37,6 +36,7 @@ class Channel-tab{
         ..
         -create-channel(string):Channel-tab
         -update.channel(list): void
+        -send-message(string):void
 }
 
 
